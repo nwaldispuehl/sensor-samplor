@@ -1,0 +1,22 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+version = '0.0.1'
+mainClassName = 'ch.retorte.pitempstation.PiTempStation'
+
+jar {
+  from 'lib'
+
+  manifest {
+    attributes 'Implementation-Title': 'Pi Temp Station', 'Implementation-Version': version
+  }
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compile 'net.java.dev.jna:jna:4.1.0'
+  compile 'joda-time:joda-time:2.6'
+}
