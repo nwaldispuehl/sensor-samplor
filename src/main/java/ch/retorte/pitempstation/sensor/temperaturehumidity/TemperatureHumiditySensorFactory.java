@@ -12,8 +12,8 @@ public class TemperatureHumiditySensorFactory {
     try {
       return new Am2302Sensor(4);
     }
-    catch (Exception e) {
-      System.err.println("Was not able to instanciate AM 3202 Sensor class.");
+    catch (Throwable t) {
+      System.err.println("Was not able to instantiate AM 3202 Sensor class:" + t.getMessage());
     }
      return new DummyTemperatureSensor();
   }
