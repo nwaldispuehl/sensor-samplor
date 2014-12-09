@@ -2,11 +2,12 @@ package ch.retorte.pitempstation.invoker;
 
 import ch.retorte.pitempstation.receiver.SampleReceiver;
 import ch.retorte.pitempstation.sensor.SensorException;
+import ch.retorte.pitempstation.sensor.temperaturehumidity.ErrorSample;
 import ch.retorte.pitempstation.sensor.temperaturehumidity.TemperatureHumiditySensor;
 
 
 /**
- * Created by nw on 07.12.14.
+ * Invokes measurements on a temperature/humidity sensor.
  */
 public class TemperatureHumiditySensorInvoker implements Runnable {
 
@@ -24,7 +25,7 @@ public class TemperatureHumiditySensorInvoker implements Runnable {
       sampleReceiver.processSample(sensor.measure());
     }
     catch (SensorException e) {
-
+      sampleReceiver.processError(new ErrorSample(e.getMessage()));
     }
   }
 }

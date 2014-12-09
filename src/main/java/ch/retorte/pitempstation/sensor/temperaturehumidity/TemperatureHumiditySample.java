@@ -4,7 +4,7 @@ import ch.retorte.pitempstation.sensor.Sample;
 import org.joda.time.DateTime;
 
 /**
- * Created by nw on 07.12.14.
+ * Immutable sensor sample for temperature/humidity sensor.
  */
 public class TemperatureHumiditySample implements Sample {
 

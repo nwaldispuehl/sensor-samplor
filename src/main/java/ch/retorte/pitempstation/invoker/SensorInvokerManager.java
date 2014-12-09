@@ -5,9 +5,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by nw on 07.12.14.
+ * Schedules the sensor invoker.
  */
 public class SensorInvokerManager {
+
+  private static final int INITIAL_DELAY_SECONDS = 1;
 
   private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -17,8 +19,8 @@ public class SensorInvokerManager {
     this.invoker = invoker;
   }
 
-  public void start() {
-    scheduler.scheduleAtFixedRate(invoker, 1, 10, TimeUnit.SECONDS);
+  public void scheduleIntervals(int seconds) {
+    scheduler.scheduleAtFixedRate(invoker, INITIAL_DELAY_SECONDS, seconds, TimeUnit.SECONDS);
   }
 
   public void stop() {

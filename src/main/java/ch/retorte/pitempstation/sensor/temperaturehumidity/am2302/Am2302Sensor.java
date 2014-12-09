@@ -18,8 +18,8 @@ public class Am2302Sensor implements TemperatureHumiditySensor {
   private static final int FLOAT_SIZE = 16;
 
   private final int pin;
-  private final Pointer humidity = new Memory(FLOAT_SIZE);
-  private final Pointer temperature = new Memory(FLOAT_SIZE);
+  private final Pointer humidityReference = new Memory(FLOAT_SIZE);
+  private final Pointer temperatureReference = new Memory(FLOAT_SIZE);
 
   private Am2302SensorLibrary sensorLibrary;
 
@@ -34,7 +34,14 @@ public class Am2302Sensor implements TemperatureHumiditySensor {
 
   @Override
   public TemperatureHumiditySample measure() throws SensorException {
-    sensorLibrary.pi_dht_read(SENSOR_TYPE, pin, humidity, temperature);
-    return new TemperatureHumiditySample((double) temperature.getFloat(0), (double) humidity.getFloat(0));
+    sensorLibrary.pi_dht_read(SENSOR_TYPE, pin, humidityReference, temperatureReference);
+    float temperature = temperatureReference.getFloat(0);
+    float humidity = humidityReference.getFloat(0);
+
+    if (temperature == 0 && humidity == 0) {
+      throw new SensorException("Problems with reading the sensor...");
+    }
+
+    return new TemperatureHumiditySample((double) temperature, (double) humidity);
   }
 }

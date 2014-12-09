@@ -2,6 +2,7 @@ package ch.retorte.pitempstation.receiver.temperaturehumidity;
 
 import ch.retorte.pitempstation.receiver.SampleReceiver;
 import ch.retorte.pitempstation.sensor.Sample;
+import ch.retorte.pitempstation.sensor.temperaturehumidity.ErrorSample;
 import ch.retorte.pitempstation.sensor.temperaturehumidity.TemperatureHumiditySample;
 
 /**
@@ -17,7 +18,12 @@ public class ConsolePrintSampleReceiver implements SampleReceiver {
   }
 
   public void processError(Sample sample) {
-    System.err.println(sample.getDate() + " No sensor reading possible.");
+    if (sample instanceof ErrorSample) {
+      System.err.println(sample.getDate() + " " + ((ErrorSample) sample).getErrorMessage());
+    }
+    else {
+      System.err.println(sample.getDate() + " No sensor reading possible: ");
+    }
   }
 
 }

@@ -21,6 +21,6 @@ public class PiTempStation {
     TemperatureHumiditySensor sensor = new TemperatureHumiditySensorFactory().createSensor();
     TemperatureHumiditySensorInvoker invoker = new TemperatureHumiditySensorInvoker(receiver, sensor);
     SensorInvokerManager manager = new SensorInvokerManager(invoker);
-    manager.start();
+    manager.scheduleIntervals();
   }
 }
