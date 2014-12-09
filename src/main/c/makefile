@@ -6,4 +6,4 @@ clean:
 	rm *.o *.so
 
 install:
-	sudo cp libPiDht.so /usr/local/lib/
+	sudo cp libPiDht.so /usr/lib/

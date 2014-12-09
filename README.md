@@ -12,7 +12,7 @@ Build the DHT22/ sensor driver by calling the make file in the respective direct
     $ make install
     $ make clean
 
-The driver is compiled (```libPiDht.so```) and copied into the systems library directory ```/usr/local/lib```.
+The driver is compiled (```libPiDht.so```) and copied into the systems library directory ```/usr/lib```.
 
 ### Build software
 

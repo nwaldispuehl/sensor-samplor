@@ -5,7 +5,7 @@ import ch.retorte.pitempstation.sensor.Sample;
 import ch.retorte.pitempstation.sensor.temperaturehumidity.TemperatureHumiditySample;
 
 /**
- * Created by nw on 07.12.14.
+ * Prints all received samples instantly to the standard out.
  */
 public class ConsolePrintSampleReceiver implements SampleReceiver {
 

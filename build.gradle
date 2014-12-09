@@ -5,8 +5,6 @@ version = '0.0.1'
 mainClassName = 'ch.retorte.pitempstation.PiTempStation'
 
 jar {
-  from 'lib'
-
   manifest {
     attributes 'Implementation-Title': 'Pi Temp Station', 'Implementation-Version': version
   }

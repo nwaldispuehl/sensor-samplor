@@ -9,13 +9,13 @@ import java.util.concurrent.TimeUnit;
  */
 public class SensorInvokerManager {
 
+  private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
   private TemperatureHumiditySensorInvoker invoker;
 
   public SensorInvokerManager(TemperatureHumiditySensorInvoker invoker) {
     this.invoker = invoker;
   }
-
-  private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
   public void start() {
     scheduler.scheduleAtFixedRate(invoker, 1, 10, TimeUnit.SECONDS);
