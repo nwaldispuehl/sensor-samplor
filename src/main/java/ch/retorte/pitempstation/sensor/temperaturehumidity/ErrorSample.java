@@ -18,7 +18,7 @@ public class ErrorSample implements Sample {
 
   @Override
   public DateTime getDate() {
-    return getDate();
+    return date;
   }
 
   public String getErrorMessage() {
