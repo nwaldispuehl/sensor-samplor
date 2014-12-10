@@ -11,10 +11,20 @@ import java.util.Random;
  */
 public class DummyTemperatureSensor implements TemperatureHumiditySensor {
 
-  private Random random = new Random();
+  private final Random random = new Random();
 
   @Override
   public TemperatureHumiditySample measure() throws SensorException {
-    return new TemperatureHumiditySample(random.nextDouble(), random.nextDouble());
+    return new TemperatureHumiditySample(randomTemperature(), randomHumidity());
   }
+
+  private double randomTemperature() {
+    return random.nextInt(10) + 20 + random.nextDouble();
+  }
+
+  private double randomHumidity() {
+    return random.nextInt(60) + 20 + random.nextDouble();
+  }
+
+
 }

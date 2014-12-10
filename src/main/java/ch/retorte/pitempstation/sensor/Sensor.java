@@ -1,9 +1,12 @@
 package ch.retorte.pitempstation.sensor;
 
 /**
- * Created by nw on 07.12.14.
+ * Knows how to obtain a sample.
  */
 public interface Sensor {
 
+  /**
+   * Performs one single measurement and produces a sample. Or a sensor exception, that is.
+   */
   Sample measure() throws SensorException;
 }

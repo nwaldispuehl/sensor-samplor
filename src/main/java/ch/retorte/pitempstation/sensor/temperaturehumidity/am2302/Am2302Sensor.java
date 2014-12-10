@@ -8,8 +8,12 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
+import static ch.retorte.pitempstation.sensor.temperaturehumidity.am2302.Am2302SensorStatusCode.DHT_SUCCESS;
+import static ch.retorte.pitempstation.sensor.temperaturehumidity.am2302.Am2302SensorStatusCode.UNKNOWN;
+import static ch.retorte.pitempstation.sensor.temperaturehumidity.am2302.Am2302SensorStatusCode.valueOfStatus;
+
 /**
- * Created by nw on 07.12.14.
+ * Implementation of the temperature/humidity sensor which uses a native c library for communicating with the DHT22/AM2302 sensor.
  */
 public class Am2302Sensor implements TemperatureHumiditySensor {
 
@@ -21,7 +25,7 @@ public class Am2302Sensor implements TemperatureHumiditySensor {
   private final Pointer humidityReference = new Memory(FLOAT_SIZE);
   private final Pointer temperatureReference = new Memory(FLOAT_SIZE);
 
-  private Am2302SensorLibrary sensorLibrary;
+  private final Am2302SensorLibrary sensorLibrary;
 
   private interface Am2302SensorLibrary extends Library {
     public int pi_dht_read(int sensor, int pin, Pointer humidity, Pointer temperature);
@@ -34,14 +38,24 @@ public class Am2302Sensor implements TemperatureHumiditySensor {
 
   @Override
   public TemperatureHumiditySample measure() throws SensorException {
-    sensorLibrary.pi_dht_read(SENSOR_TYPE, pin, humidityReference, temperatureReference);
-    float temperature = temperatureReference.getFloat(0);
-    float humidity = humidityReference.getFloat(0);
+    int returnCode = sensorLibrary.pi_dht_read(SENSOR_TYPE, pin, humidityReference, temperatureReference);
 
-    if (temperature == 0 && humidity == 0) {
-      throw new SensorException("Problems with reading the sensor...");
+    if (isNoSuccess(returnCode)) {
+      throw new SensorException(getMessageFor(returnCode));
     }
 
-    return new TemperatureHumiditySample((double) temperature, (double) humidity);
+    return new TemperatureHumiditySample((double) temperatureReference.getFloat(0), (double) humidityReference.getFloat(0));
+  }
+
+  private boolean isNoSuccess(int returnCode) {
+    return returnCode != DHT_SUCCESS.code();
+  }
+
+  private String getMessageFor(int returnCode) {
+    Am2302SensorStatusCode statusCode = valueOfStatus(returnCode);
+    if (statusCode != null) {
+      statusCode.message();
+    }
+    return UNKNOWN.message();
   }
 }

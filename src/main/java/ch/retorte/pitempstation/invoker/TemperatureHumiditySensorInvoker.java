@@ -11,8 +11,8 @@ import ch.retorte.pitempstation.sensor.temperaturehumidity.TemperatureHumiditySe
  */
 public class TemperatureHumiditySensorInvoker implements Runnable {
 
-  private SampleReceiver sampleReceiver;
-  private TemperatureHumiditySensor sensor;
+  private final SampleReceiver sampleReceiver;
+  private final TemperatureHumiditySensor sensor;
 
   public TemperatureHumiditySensorInvoker(SampleReceiver sampleReceiver, TemperatureHumiditySensor sensor) {
     this.sampleReceiver = sampleReceiver;

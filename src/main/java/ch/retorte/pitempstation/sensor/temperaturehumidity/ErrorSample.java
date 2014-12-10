@@ -4,12 +4,12 @@ import ch.retorte.pitempstation.sensor.Sample;
 import org.joda.time.DateTime;
 
 /**
- * Created by nw on 09.12.14.
+ * Sample to be produced if errors occurs when measuring.
  */
 public class ErrorSample implements Sample {
 
-  private DateTime date;
-  private String errorMessage;
+  private final DateTime date;
+  private final String errorMessage;
 
   public ErrorSample(String errorMessage) {
     this.date = DateTime.now();

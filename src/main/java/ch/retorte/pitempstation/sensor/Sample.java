@@ -3,7 +3,7 @@ package ch.retorte.pitempstation.sensor;
 import org.joda.time.DateTime;
 
 /**
- * Created by nw on 07.12.14.
+ * The most elementary data item a sample can show - the time stamp.
  */
 public interface Sample {
 

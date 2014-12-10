@@ -3,7 +3,7 @@ package ch.retorte.pitempstation.receiver;
 import ch.retorte.pitempstation.sensor.Sample;
 
 /**
- * Created by nw on 07.12.14.
+ * Knows what to do with samples from a sensor.
  */
 public interface SampleReceiver {
 
