@@ -54,7 +54,7 @@ public class Am2302Sensor implements TemperatureHumiditySensor {
   private String getMessageFor(int returnCode) {
     Am2302SensorStatusCode statusCode = valueOfStatus(returnCode);
     if (statusCode != null) {
-      statusCode.message();
+      return statusCode.message();
     }
     return UNKNOWN.message();
   }
