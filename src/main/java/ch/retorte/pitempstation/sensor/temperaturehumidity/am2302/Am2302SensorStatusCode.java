@@ -1,7 +1,7 @@
 package ch.retorte.pitempstation.sensor.temperaturehumidity.am2302;
 
 /**
- * Sensor error codes taken from the respective header file 'common_dht_read.h'.
+ * Sensor error codes taken from the respective header file 'common_dht_read.h'. The 'unknown' error is for a
  */
 public enum Am2302SensorStatusCode {
 
@@ -10,8 +10,7 @@ public enum Am2302SensorStatusCode {
   DHT_ERROR_CHECKSUM(-2, "Checksum error."),
   DHT_ERROR_ARGUMENT(-3, "Wrong arguments provided."),
   DHT_ERROR_GPIO(-4, "Sensor not properly wired."),
-  DHT_SUCCESS(0, null),
-  UNKNOWN(-99, "Unknown problem.");
+  DHT_SUCCESS(0, null);
 
   private int statusCode;
   private String errorMessage;
@@ -34,6 +33,14 @@ public enum Am2302SensorStatusCode {
       if (c.code() == status) {
         return c;
       }
+    }
+    return null;
+  }
+
+  public static String messageOfStatus(int status) {
+    Am2302SensorStatusCode statusCode = valueOfStatus(status);
+    if (statusCode != null) {
+      return statusCode.message();
     }
     return null;
   }

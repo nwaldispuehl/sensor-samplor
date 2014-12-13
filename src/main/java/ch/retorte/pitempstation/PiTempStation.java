@@ -1,8 +1,9 @@
 package ch.retorte.pitempstation;
 
 import ch.retorte.pitempstation.invoker.SensorInvokerManager;
-import ch.retorte.pitempstation.invoker.TemperatureHumiditySensorInvoker;
-import ch.retorte.pitempstation.receiver.temperaturehumidity.ConsolePrintSampleReceiver;
+import ch.retorte.pitempstation.invoker.SensorInvoker;
+import ch.retorte.pitempstation.receiver.console.ConsolePrintSampleReceiver;
+import ch.retorte.pitempstation.receiver.file.FileSampleReceiver;
 import ch.retorte.pitempstation.sensor.temperaturehumidity.TemperatureHumiditySensor;
 import ch.retorte.pitempstation.sensor.temperaturehumidity.TemperatureHumiditySensorFactory;
 
@@ -11,6 +12,7 @@ import ch.retorte.pitempstation.sensor.temperaturehumidity.TemperatureHumiditySe
  */
 public class PiTempStation {
 
+  private static final String LOGGING_DIRECTORY = "/var/log/pi-temp-station/";
   private static final int GPIO_PIN = 4;
   private static final int MEASUREMENT_INTERVAL = 10;
 
@@ -19,9 +21,14 @@ public class PiTempStation {
   }
 
   public void start() {
-    ConsolePrintSampleReceiver receiver = new ConsolePrintSampleReceiver();
+    ConsolePrintSampleReceiver consolePrintSampleReceiver = new ConsolePrintSampleReceiver();
+    FileSampleReceiver fileSampleReceiver = new FileSampleReceiver(LOGGING_DIRECTORY);
+
     TemperatureHumiditySensor sensor = new TemperatureHumiditySensorFactory().createSensorOn(GPIO_PIN);
-    TemperatureHumiditySensorInvoker invoker = new TemperatureHumiditySensorInvoker(receiver, sensor);
+    SensorInvoker invoker = new SensorInvoker(sensor);
+    invoker.registerReceiver(consolePrintSampleReceiver);
+    invoker.registerReceiver(fileSampleReceiver);
+
     SensorInvokerManager manager = new SensorInvokerManager(invoker);
     manager.scheduleIntervals(MEASUREMENT_INTERVAL);
   }

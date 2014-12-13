@@ -13,9 +13,9 @@ public class SensorInvokerManager {
 
   private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-  private final TemperatureHumiditySensorInvoker invoker;
+  private final SensorInvoker invoker;
 
-  public SensorInvokerManager(TemperatureHumiditySensorInvoker invoker) {
+  public SensorInvokerManager(SensorInvoker invoker) {
     this.invoker = invoker;
   }
 

@@ -24,4 +24,9 @@ public class ErrorSample implements Sample {
   public String getErrorMessage() {
     return errorMessage;
   }
+
+  @Override
+  public String toString() {
+    return getDate() + " " + getErrorMessage();
+  }
 }

@@ -1,7 +1,13 @@
 package ch.retorte.pitempstation.sensor.temperaturehumidity;
 
 import ch.retorte.pitempstation.sensor.Sample;
+import com.sun.jna.Pointer;
 import org.joda.time.DateTime;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+import static java.lang.String.valueOf;
 
 /**
  * Immutable sensor sample for temperature/humidity sensor.
@@ -29,4 +35,14 @@ public class TemperatureHumiditySample implements Sample {
   public Double getHumidity() {
     return humidity;
   }
+
+  @Override
+  public String toString() {
+    return getDate() + " " + toOneDigitDouble(getTemperature()) + "°C, " + toOneDigitDouble(getHumidity()) + "%";
+  }
+
+  private double toOneDigitDouble(Double value) {
+    return new BigDecimal(value).setScale(1, RoundingMode.HALF_UP).doubleValue();
+  }
+
 }

@@ -15,6 +15,10 @@ public class DummyTemperatureSensor implements TemperatureHumiditySensor {
 
   @Override
   public TemperatureHumiditySample measure() throws SensorException {
+    if (random.nextDouble() < 0.1) {
+      throw new SensorException("Dummy sensor error.");
+    }
+
     return new TemperatureHumiditySample(randomTemperature(), randomHumidity());
   }
 
