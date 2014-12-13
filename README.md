@@ -26,8 +26,8 @@ To the build the software, call the gradle wrapper from the projects root:
 
 Then, you can run it with this command (we need the ```sudo``` to talk to the sensor):
 
-    $ cd build/install/pi-temp-station/bin
-    $ sudo pi-temp-station
+    $ cd sensorsamplor.app/build/install/sensorsamplor.app/bin/
+    $ sudo ./sensorsamplor.app
 
 ## How to deploy
 
