@@ -45,13 +45,15 @@ public class SensorInvoker implements Runnable {
     }
   }
 
-  private void process(Sample sample) {
+  @VisibleForTesting
+  void process(Sample sample) {
     for (SampleReceiver r : sampleReceivers) {
       r.processSample(sample);
     }
   }
 
-  private void processError(SensorException sensorException) {
+  @VisibleForTesting
+  void processError(SensorException sensorException) {
     ErrorSample errorSample = new ErrorSample(sensorException.getMessage());
     for (SampleReceiver r : sampleReceivers) {
       r.processError(errorSample);

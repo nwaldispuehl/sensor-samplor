@@ -8,8 +8,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for the sensor invoker.
@@ -18,7 +18,7 @@ public class SensorInvokerTest {
 
   Sensor sensor = mock(Sensor.class);
   SampleReceiver receiver = mock(SampleReceiver.class);
-  SensorInvoker sut = new SensorInvoker(sensor);
+  SensorInvoker sut = spy(new SensorInvoker(sensor));
 
   @Before
   public void setup() {
@@ -34,15 +34,18 @@ public class SensorInvokerTest {
     sut.invokeSensor();
 
     // then
+    verify(sut).process(any(Sample.class));
   }
 
   @Test
   public void shouldProcessError() throws SensorException {
     // given
+    when(sensor.measure()).thenThrow(SensorException.class);
 
     // when
     sut.invokeSensor();
 
     // then
+    verify(sut).processError(any(SensorException.class));
   }
 }
