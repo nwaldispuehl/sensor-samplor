@@ -2,11 +2,11 @@ apply plugin: 'java'
 apply plugin: 'application'
 
 version = '0.0.1'
-mainClassName = 'ch.retorte.pitempstation.PiTempStation'
+mainClassName = 'ch.retorte.sensorsamplor.PiTempStation'
 
 jar {
   manifest {
-    attributes 'Implementation-Title': 'Pi Temp Station', 'Implementation-Version': version
+    attributes 'Implementation-Title': 'Sensor Samplor', 'Implementation-Version': version
   }
 }
 
