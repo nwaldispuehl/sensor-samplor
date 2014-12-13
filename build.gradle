@@ -1,25 +1,17 @@
-apply plugin: 'java'
-apply plugin: 'application'
+subprojects {
+  apply plugin: 'java'
 
-version = '0.0.1'
-mainClassName = 'ch.retorte.sensorsamplor.PiTempStation'
-
-jar {
-  manifest {
-    attributes 'Implementation-Title': 'Sensor Samplor', 'Implementation-Version': version
+  repositories {
+    mavenCentral()
   }
-}
 
-repositories {
-  mavenCentral()
-}
+  dependencies {
+    compile 'net.java.dev.jna:jna:4.1.0'
+    compile 'joda-time:joda-time:2.6'
+    compile 'com.google.guava:guava:18.0'
 
-dependencies {
-  compile 'net.java.dev.jna:jna:4.1.0'
-  compile 'joda-time:joda-time:2.6'
-  compile 'com.google.guava:guava:18.0'
-
-  testCompile 'org.hamcrest:hamcrest-all:1.3' // Note: Hamcrest needs to be placed before JUnit to use hamcrests versions of certain classes in the tests.
-  testCompile 'junit:junit:4.12'
-  testCompile 'org.mockito:mockito-all:1.10.8'
+    testCompile 'org.hamcrest:hamcrest-all:1.3' // Note: Hamcrest needs to be placed before JUnit to use hamcrests versions of certain classes in the tests.
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-all:1.10.8'
+  }
 }

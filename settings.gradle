@@ -1,1 +1,9 @@
-rootProject.name = 'pi-temp-station'
+rootProject.name = 'sensor-samplor'
+
+include "sensorsamplor.base",
+        "sensorsamplor.app",
+        "sensorsamplor.sensor.temperature",
+        "sensorsamplor.sensor.temperature.am2302",
+        "sensorsamplor.sensor.temperature.dummy",
+        "sensorsamplor.receiver.console",
+        "sensorsamplor.receiver.file"

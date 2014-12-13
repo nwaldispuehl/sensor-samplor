@@ -1,0 +1,7 @@
+Driver created by Tony DiCola for Adafruit Industries.
+Taken from: https://github.com/adafruit/Adafruit_Python_DHT
+
+To build and install call:
+$ make
+$ make install
+$ make clean

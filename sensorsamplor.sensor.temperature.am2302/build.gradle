@@ -1,0 +1,9 @@
+apply plugin: 'java'
+
+group = 'ch.retorte.sensorsamplor'
+version = '0.0.1'
+
+dependencies {
+  compile project(':sensorsamplor.base')
+  compile project(':sensorsamplor.sensor.temperature')
+}

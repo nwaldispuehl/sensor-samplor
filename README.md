@@ -1,5 +1,6 @@
 ...
 
+Work in progress...
 
 ## How to build
 
@@ -7,6 +8,7 @@
 
 Build the DHT22/AM2302 sensor driver by calling the make file in the respective directory:
 
+    $ cd sensorsamplor.sensor.temperature.am2302
     $ cd src/main/c
     $ make
     $ make install

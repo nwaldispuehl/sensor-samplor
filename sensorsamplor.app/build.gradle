@@ -1,0 +1,21 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+group = 'ch.retorte.sensorsamplor'
+
+mainClassName = 'ch.retorte.sensorsamplor.SensorSamplor'
+
+jar {
+  manifest {
+    attributes 'Implementation-Title': 'Sensor Samplor', 'Implementation-Version': version
+  }
+}
+
+dependencies {
+  compile project(':sensorsamplor.base')
+  compile project(':sensorsamplor.receiver.console')
+  compile project(':sensorsamplor.receiver.file')
+  compile project(':sensorsamplor.sensor.temperature')
+  compile project(':sensorsamplor.sensor.temperature.am2302')
+  compile project(':sensorsamplor.sensor.temperature.dummy')
+}
