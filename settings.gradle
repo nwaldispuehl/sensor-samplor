@@ -1,5 +1,3 @@
-rootProject.name = 'sensor-samplor'
-
 include "sensorsamplor.base",
         "sensorsamplor.app",
         "sensorsamplor.sensor.temperature",
