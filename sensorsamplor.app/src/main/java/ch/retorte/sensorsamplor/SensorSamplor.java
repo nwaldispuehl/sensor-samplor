@@ -30,7 +30,7 @@ public class SensorSamplor {
   }
 
   private SensorInvoker addReceiversTo(SensorInvoker sensorInvoker) {
-    sensorInvoker.registerReceiver(new ConsolePrintSampleReceiver());
+//    sensorInvoker.registerReceiver(new ConsolePrintSampleReceiver());
     sensorInvoker.registerReceiver(new FileSampleReceiver(LOGGING_DIRECTORY));
     return sensorInvoker;
   }
