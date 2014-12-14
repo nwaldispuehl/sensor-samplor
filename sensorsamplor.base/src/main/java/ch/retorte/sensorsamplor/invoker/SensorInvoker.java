@@ -52,7 +52,7 @@ public class SensorInvoker implements Runnable {
 
   @VisibleForTesting
   void processError(SensorException sensorException) {
-    ErrorSample errorSample = new ErrorSample(sensorException.getMessage());
+    ErrorSample errorSample = new ErrorSample(sensorException.getPlatformIdentifier(), sensorException.getMessage());
     for (SampleReceiver r : sampleReceivers) {
       r.processError(errorSample);
     }

@@ -12,14 +12,19 @@ import java.util.Random;
 public class DummyTemperatureSensor implements TemperatureHumiditySensor {
 
   private final Random random = new Random();
+  private String platformIdentifier;
+
+  public DummyTemperatureSensor(String platformIdentifier) {
+    this.platformIdentifier = platformIdentifier;
+  }
 
   @Override
   public TemperatureHumiditySample measure() throws SensorException {
     if (random.nextDouble() < 0.1) {
-      throw new SensorException("Dummy sensor error.");
+      throw new SensorException(platformIdentifier, "Dummy sensor error.");
     }
 
-    return new TemperatureHumiditySample(randomTemperature(), randomHumidity());
+    return new TemperatureHumiditySample(platformIdentifier, randomTemperature(), randomHumidity());
   }
 
   private double randomTemperature() {

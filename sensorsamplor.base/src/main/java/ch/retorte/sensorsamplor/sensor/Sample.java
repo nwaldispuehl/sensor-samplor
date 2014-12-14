@@ -7,5 +7,13 @@ import org.joda.time.DateTime;
  */
 public interface Sample {
 
+  /**
+   * Returns the point in time this sample was taken.
+   */
   DateTime getDate();
+
+  /**
+   * Returns the string identifier of the platform where the sample was taken. This might be the name of the computer or some geographic designation.
+   */
+  String getPlatformIdentifier();
 }

@@ -20,6 +20,7 @@ public class Am2302Sensor implements TemperatureHumiditySensor {
   private static final int FLOAT_SIZE = 16;
   private static final int RETRIES_IN_ERROR_CASE = 3;
 
+  private String platformIdentifier;
   private final int pin;
 
   private final Pointer humidity = new Memory(FLOAT_SIZE);
@@ -38,7 +39,8 @@ public class Am2302Sensor implements TemperatureHumiditySensor {
     return (Am2302SensorLibrary) Native.loadLibrary(PI_DHT_LIBRARY_NAME, Am2302SensorLibrary.class);
   }
 
-  public Am2302Sensor(int pin) {
+  public Am2302Sensor(String platformIdentifier, int pin) {
+    this.platformIdentifier = platformIdentifier;
     this.pin = pin;
     this.sensorLibrary = loadLibrary();
   }
@@ -48,10 +50,10 @@ public class Am2302Sensor implements TemperatureHumiditySensor {
     measureWithRetries();
 
     if (measurementFailed()) {
-      throw new SensorException(messageOfStatus(returnCode));
+      throw new SensorException(platformIdentifier, messageOfStatus(returnCode));
     }
 
-    return new TemperatureHumiditySample(toDouble(temperature), toDouble(humidity));
+    return new TemperatureHumiditySample(platformIdentifier, toDouble(temperature), toDouble(humidity));
   }
 
   /**

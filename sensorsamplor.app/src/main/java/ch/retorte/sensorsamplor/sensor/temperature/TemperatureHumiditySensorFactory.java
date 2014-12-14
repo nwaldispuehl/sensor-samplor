@@ -8,13 +8,13 @@ import ch.retorte.sensorsamplor.sensor.temperature.dummy.DummyTemperatureSensor;
  */
 public class TemperatureHumiditySensorFactory {
 
-  public TemperatureHumiditySensor createSensorOn(int gpioPin) {
+  public TemperatureHumiditySensor createSensorOn(String platformIdentifier, int gpioPin) {
     try {
-      return new Am2302Sensor(gpioPin);
+      return new Am2302Sensor(platformIdentifier, gpioPin);
     }
     catch (Throwable t) {
       System.err.println("Was not able to instantiate AM 3202 Sensor class: " + t.getMessage());
     }
-     return new DummyTemperatureSensor();
+     return new DummyTemperatureSensor(platformIdentifier);
   }
 }

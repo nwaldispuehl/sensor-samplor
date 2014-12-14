@@ -5,7 +5,6 @@ import ch.retorte.sensorsamplor.invoker.SensorInvoker;
 import ch.retorte.sensorsamplor.receiver.console.ConsolePrintSampleReceiver;
 import ch.retorte.sensorsamplor.receiver.file.FileSampleReceiver;
 import ch.retorte.sensorsamplor.sensor.Sensor;
-import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySensor;
 import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySensorFactory;
 
 /**
@@ -13,6 +12,7 @@ import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySensorFact
  */
 public class SensorSamplor {
 
+  private static final String SENSOR_PLATFORM_IDENTIIFER = "myRaspberryPi_01";
   private static final String LOGGING_DIRECTORY = "/var/log/sensor-samplor/";
   private static final int GPIO_PIN = 4;
   private static final int MEASUREMENT_INTERVAL = 10;
@@ -40,7 +40,7 @@ public class SensorSamplor {
   }
 
   private Sensor createSensor() {
-    return new TemperatureHumiditySensorFactory().createSensorOn(GPIO_PIN);
+    return new TemperatureHumiditySensorFactory().createSensorOn(SENSOR_PLATFORM_IDENTIIFER, GPIO_PIN);
   }
 
 
