@@ -15,7 +15,7 @@ public class SensorSamplor {
   private static final String SENSOR_PLATFORM_IDENTIIFER = "myRaspberryPi_01";
   private static final String LOGGING_DIRECTORY = "/var/log/sensor-samplor/";
   private static final int GPIO_PIN = 4;
-  private static final int MEASUREMENT_INTERVAL = 10;
+  private static final int MEASUREMENT_INTERVAL = 60;
 
   public static void main(String[] args) {
     new SensorSamplor().start();
