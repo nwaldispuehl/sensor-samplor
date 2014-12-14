@@ -4,6 +4,7 @@ import ch.retorte.sensorsamplor.invoker.SensorInvokerManager;
 import ch.retorte.sensorsamplor.invoker.SensorInvoker;
 import ch.retorte.sensorsamplor.receiver.console.ConsolePrintSampleReceiver;
 import ch.retorte.sensorsamplor.receiver.file.FileSampleReceiver;
+import ch.retorte.sensorsamplor.sensor.Sensor;
 import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySensor;
 import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySensorFactory;
 
@@ -12,7 +13,7 @@ import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySensorFact
  */
 public class SensorSamplor {
 
-  private static final String LOGGING_DIRECTORY = "/var/log/pi-temp-station/";
+  private static final String LOGGING_DIRECTORY = "/var/log/sensor-samplor/";
   private static final int GPIO_PIN = 4;
   private static final int MEASUREMENT_INTERVAL = 10;
 
@@ -21,15 +22,26 @@ public class SensorSamplor {
   }
 
   public void start() {
-    ConsolePrintSampleReceiver consolePrintSampleReceiver = new ConsolePrintSampleReceiver();
-    FileSampleReceiver fileSampleReceiver = new FileSampleReceiver(LOGGING_DIRECTORY);
-
-    TemperatureHumiditySensor sensor = new TemperatureHumiditySensorFactory().createSensorOn(GPIO_PIN);
-    SensorInvoker invoker = new SensorInvoker(sensor);
-    invoker.registerReceiver(consolePrintSampleReceiver);
-    invoker.registerReceiver(fileSampleReceiver);
-
-    SensorInvokerManager manager = new SensorInvokerManager(invoker);
-    manager.scheduleIntervals(MEASUREMENT_INTERVAL);
+    createManager().scheduleIntervals(MEASUREMENT_INTERVAL);
   }
+
+  private SensorInvokerManager createManager() {
+    return new SensorInvokerManager(addReceiversTo(createInvoker()));
+  }
+
+  private SensorInvoker addReceiversTo(SensorInvoker sensorInvoker) {
+    sensorInvoker.registerReceiver(new ConsolePrintSampleReceiver());
+    sensorInvoker.registerReceiver(new FileSampleReceiver(LOGGING_DIRECTORY));
+    return sensorInvoker;
+  }
+
+  private SensorInvoker createInvoker() {
+    return new SensorInvoker(createSensor());
+  }
+
+  private Sensor createSensor() {
+    return new TemperatureHumiditySensorFactory().createSensorOn(GPIO_PIN);
+  }
+
+
 }
