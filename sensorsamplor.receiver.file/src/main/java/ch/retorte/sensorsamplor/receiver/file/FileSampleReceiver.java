@@ -3,6 +3,8 @@ package ch.retorte.sensorsamplor.receiver.file;
 import ch.retorte.sensorsamplor.receiver.SampleReceiver;
 import ch.retorte.sensorsamplor.sensor.Sample;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -18,6 +20,8 @@ public class FileSampleReceiver implements SampleReceiver {
 
   public static final String LOG_FILE_PREFIX = "sensor.log.";
   public static final String ERROR_LOG_FILE_PREFIX = "error.log.";
+
+  private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
   private final DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
 
@@ -62,7 +66,7 @@ public class FileSampleReceiver implements SampleReceiver {
       appendSampleToFile(sample, logFile);
     }
     catch (FileNotFoundException fileNotFoundException) {
-      throw new RuntimeException("Not log file found for writing: " + fileNotFoundException.getMessage());
+      throw new RuntimeException("No log file found for writing: " + fileNotFoundException.getMessage());
     }
     catch (IOException ioException) {
       throw new RuntimeException("Was not able to create log file: " + ioException.getMessage());
@@ -70,16 +74,16 @@ public class FileSampleReceiver implements SampleReceiver {
   }
 
   private void appendSampleToFile(Sample sample, File logFile) throws IOException {
-    PrintWriter printWriter = new PrintWriter(new BufferedWriter(new FileWriter(logFile, true)));
-    printWriter.println(sample);
-    printWriter.flush();
-    printWriter.close();
+    Files.append(sample + LINE_SEPARATOR, logFile, Charsets.UTF_8);
   }
 
   private File getOrCreateLogFileFor(String prefix, Sample sample) throws IOException {
     File logFile = new File(logFilePath + getFileNameForSample(prefix, sample));
     if (!logFile.exists()) {
-      logFile.createNewFile();
+      boolean fileCreated = logFile.createNewFile();
+      if (!fileCreated) {
+        throw new RuntimeException("Was not able to create log file: " + logFile.getAbsolutePath());
+      }
     }
     return logFile;
   }
