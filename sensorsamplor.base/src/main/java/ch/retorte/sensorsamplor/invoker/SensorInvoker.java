@@ -28,9 +28,18 @@ public class SensorInvoker implements Runnable {
     sampleReceivers.add(sampleReceiver);
   }
 
+
   @Override
   public void run() {
-    invokeSensor();
+    try {
+      invokeSensor();
+    }
+    catch (Exception e) {
+      /* The scheduler stores exceptions instead of instantly reacting to them, so we need to do a little work here. */
+      System.err.println(e.getMessage());
+      System.exit(0);
+    }
+
   }
 
   @VisibleForTesting
