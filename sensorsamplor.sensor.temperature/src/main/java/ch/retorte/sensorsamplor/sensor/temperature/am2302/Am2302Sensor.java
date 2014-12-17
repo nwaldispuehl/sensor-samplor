@@ -21,7 +21,7 @@ public class Am2302Sensor implements Sensor {
   private static final String PI_DHT_LIBRARY_NAME = "PiDht";
   private static final int SENSOR_TYPE = 22;
   private static final int FLOAT_SIZE = 16;
-  private static final int RETRIES_IN_ERROR_CASE = 3;
+  private static final int RETRIES_IN_ERROR_CASE = 4;
 
   private String platformIdentifier;
   private final int pin;
@@ -69,11 +69,15 @@ public class Am2302Sensor implements Sensor {
     while (measurementFailed() && hasTriesLeft()) {
       triesSoFar++;
       returnCode = sensorLibrary.pi_dht_read(SENSOR_TYPE, pin, humidity, temperature);
+
+      if (measurementFailed()) {
+        sleepFor(100);
+      }
     }
   }
 
   private boolean hasTriesLeft() {
-    return triesSoFar < RETRIES_IN_ERROR_CASE;
+    return triesSoFar <= RETRIES_IN_ERROR_CASE;
   }
 
   private boolean measurementFailed() {
@@ -82,5 +86,13 @@ public class Am2302Sensor implements Sensor {
 
   private double toDouble(Pointer pointer) {
     return pointer.getFloat(0);
+  }
+
+  private void sleepFor(long milliSeconds) {
+    try {
+      Thread.sleep(200);
+    } catch (InterruptedException e) {
+      // nop
+    }
   }
 }
