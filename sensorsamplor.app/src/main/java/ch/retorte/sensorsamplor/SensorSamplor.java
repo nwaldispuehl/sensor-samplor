@@ -2,6 +2,7 @@ package ch.retorte.sensorsamplor;
 
 import ch.retorte.sensorsamplor.invoker.SensorInvokerManager;
 import ch.retorte.sensorsamplor.invoker.SensorInvoker;
+import ch.retorte.sensorsamplor.receiver.console.ConsolePrintSampleReceiver;
 import ch.retorte.sensorsamplor.receiver.file.FileSampleReceiver;
 import ch.retorte.sensorsamplor.sensor.Sensor;
 import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySensorFactory;
@@ -34,7 +35,6 @@ public class SensorSamplor {
   public void startWith(String[] args) {
     createCliOptions();
 
-
     createManager().scheduleIntervals(measurementInterval);
   }
 
@@ -49,8 +49,8 @@ public class SensorSamplor {
   }
 
   private SensorInvoker addReceiversTo(SensorInvoker sensorInvoker) {
-//    sensorInvoker.registerReceiver(new ConsolePrintSampleReceiver());
-    sensorInvoker.registerReceiver(new FileSampleReceiver(loggingDirectory));
+    sensorInvoker.registerReceiver(new ConsolePrintSampleReceiver());
+//    sensorInvoker.registerReceiver(new FileSampleReceiver(loggingDirectory));
     return sensorInvoker;
   }
 

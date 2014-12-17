@@ -16,8 +16,6 @@ dependencies {
   compile project(':sensorsamplor.receiver.console')
   compile project(':sensorsamplor.receiver.file')
   compile project(':sensorsamplor.sensor.temperature')
-  compile project(':sensorsamplor.sensor.temperature.am2302')
-  compile project(':sensorsamplor.sensor.temperature.dummy')
 
   compile 'org.mod4j.org.apache.commons:cli:1.0.0'
 }
