@@ -33,7 +33,7 @@ public class SensorInvoker implements Runnable {
     try {
       invokeSensor();
     }
-    catch (Error e) {
+    catch (Exception e) {
       /* The scheduler stores exceptions instead of instantly reacting to them, so we need to do a little work here. */
       System.err.println(e.getMessage());
       System.exit(0);

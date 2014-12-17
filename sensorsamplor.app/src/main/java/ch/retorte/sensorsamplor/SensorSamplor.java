@@ -6,42 +6,34 @@ import ch.retorte.sensorsamplor.receiver.console.ConsolePrintSampleReceiver;
 import ch.retorte.sensorsamplor.receiver.file.FileSampleReceiver;
 import ch.retorte.sensorsamplor.sensor.Sensor;
 import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySensorFactory;
-import org.apache.commons.cli.Options;
+import ch.retorte.sensorsamplor.utils.ConfigurationLoader;
+
+import static ch.retorte.sensorsamplor.utils.ConfigurationProperties.*;
 
 /**
  * Main program of the pi temp station. A data sampling software written in Java for a DHT22 temperature/humidity sensor on a Raspberry Pi.
  */
 public class SensorSamplor {
 
-  private static final String IDENTIFIER_SHORT_OPTION = "i";
-  private static final String IDENTIFIER_LONG_OPTION = "identifier";
-//  private static final String GPIO_PIN_SHORT_OPTION = "p";
-//  private static final String GPIO_PIN_LONG_OPTION = "pin";
-  private static final String GPIO_PIN_SHORT_OPTION = "p";
-  private static final String GPIO_PIN_LONG_OPTION = "pin";
-
-  /* The fields also hold the respective default values. */
-  private String sensorPlatformIdentifier = "myRaspberryPi_01";
-  private String loggingDirectory = "/var/log/sensor-samplor/";
-  private int gpioPin = 4;
-  private int measurementInterval = 60;
-
-  private Options cliOptions;
+  ConfigurationLoader configurationLoader;
 
   public static void main(String[] args) {
-    new SensorSamplor().startWith(args);
+    new SensorSamplor().start();
   }
 
-  public void startWith(String[] args) {
-    createCliOptions();
-
-    createManager().scheduleIntervals(measurementInterval);
+  public void start() {
+    loadConfiguration();
+    createManager().scheduleIntervals(getMeasurementInterval());
   }
 
-  private void createCliOptions() {
-    cliOptions = new Options();
-    cliOptions.addOption(IDENTIFIER_SHORT_OPTION, IDENTIFIER_LONG_OPTION, false, "The node identifier.");
-    cliOptions.addOption(GPIO_PIN_SHORT_OPTION, GPIO_PIN_LONG_OPTION, false, "The GPIO pin the sensor is attached to.");
+  private void loadConfiguration() {
+    try {
+      configurationLoader = new ConfigurationLoader();
+    }
+    catch (Exception e) {
+      System.err.println(e.getMessage());
+      System.exit(0);
+    }
   }
 
   private SensorInvokerManager createManager() {
@@ -49,8 +41,8 @@ public class SensorSamplor {
   }
 
   private SensorInvoker addReceiversTo(SensorInvoker sensorInvoker) {
-    sensorInvoker.registerReceiver(new ConsolePrintSampleReceiver());
-//    sensorInvoker.registerReceiver(new FileSampleReceiver(loggingDirectory));
+//    sensorInvoker.registerReceiver(new ConsolePrintSampleReceiver());
+    sensorInvoker.registerReceiver(new FileSampleReceiver(getLoggingDirectory()));
     return sensorInvoker;
   }
 
@@ -59,8 +51,23 @@ public class SensorSamplor {
   }
 
   private Sensor createSensor() {
-    return new TemperatureHumiditySensorFactory(gpioPin).createSensorFor(sensorPlatformIdentifier);
+    return new TemperatureHumiditySensorFactory(getGpioPin()).createSensorFor(getSensorPlatformIdentifier());
   }
 
+  private int getMeasurementInterval() {
+    return configurationLoader.getIntegerProperty(MEASUREMENT_INTERVAL);
+  }
+
+  private String getLoggingDirectory() {
+    return configurationLoader.getStringProperty(LOGGING_DIRECTORY);
+  }
+
+  private int getGpioPin() {
+    return configurationLoader.getIntegerProperty(GPIO_DATA_PIN);
+  }
+
+  private String getSensorPlatformIdentifier() {
+    return configurationLoader.getStringProperty(SENSOR_PLATFORM_IDENTIFIER);
+  }
 
 }

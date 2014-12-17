@@ -62,9 +62,6 @@ public class FileSampleReceiver implements SampleReceiver {
     processExceptionWithErrorHandling(sensorException);
   }
 
-
-
-
   private void processSampleWithErrorHandling(Sample sample) {
     processWithErrorHandling(LOG_FILE_PREFIX, sample.getSensorType(), sample.getDate(), sample.toString());
   }
@@ -72,7 +69,6 @@ public class FileSampleReceiver implements SampleReceiver {
   private void processExceptionWithErrorHandling(SensorException sensorException) {
     processWithErrorHandling(ERROR_LOG_FILE_PREFIX, sensorException.getSensorType(), sensorException.getDate(), sensorException.getMessage());
   }
-
 
   private void processWithErrorHandling(String prefix, String sensorType, DateTime date, String payload) {
     try {

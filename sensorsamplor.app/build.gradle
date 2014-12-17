@@ -17,5 +17,14 @@ dependencies {
   compile project(':sensorsamplor.receiver.file')
   compile project(':sensorsamplor.sensor.temperature')
 
-  compile 'org.mod4j.org.apache.commons:cli:1.0.0'
+}
+
+tasks.startScripts {
+  doLast {
+    def scriptShellFile = file "${outputDir}/${applicationName}"
+    def scriptBatchFile = file "${outputDir}/${applicationName}.bat"
+
+    scriptShellFile.text = scriptShellFile.text.replace('CLASSPATH=$APP_HOME/lib', 'CLASSPATH=$APP_HOME/conf/:$APP_HOME/lib')
+    scriptBatchFile.text = scriptBatchFile.text.replace('CLASSPATH=%APP_HOME%\\lib', 'CLASSPATH=%APP_HOME%\\conf\\;%APP_HOME%\\lib')
+  }
 }
