@@ -59,7 +59,7 @@ public class SensorSamplor {
   }
 
   private Sensor createSensor() {
-    return new TemperatureHumiditySensorFactory().createSensorOn(sensorPlatformIdentifier, gpioPin);
+    return new TemperatureHumiditySensorFactory(gpioPin).createSensorFor(sensorPlatformIdentifier);
   }
 
 

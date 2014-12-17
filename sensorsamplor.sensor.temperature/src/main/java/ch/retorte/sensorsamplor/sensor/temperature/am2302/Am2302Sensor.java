@@ -1,5 +1,6 @@
 package ch.retorte.sensorsamplor.sensor.temperature.am2302;
 
+import ch.retorte.sensorsamplor.sensor.Sensor;
 import ch.retorte.sensorsamplor.sensor.SensorException;
 import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySample;
 import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySensor;
@@ -13,7 +14,9 @@ import static ch.retorte.sensorsamplor.sensor.temperature.am2302.Am2302SensorSta
 /**
  * Implementation of the temperature/humidity sensor which uses a native c library for communicating with the DHT22/AM2302 sensor. Is not thread safe, that is, must be used only by one instance.
  */
-public class Am2302Sensor implements TemperatureHumiditySensor {
+public class Am2302Sensor implements Sensor {
+
+  public static final String TEMPERATURE_SENSOR_TYPE = "temperature";
 
   private static final String PI_DHT_LIBRARY_NAME = "PiDht";
   private static final int SENSOR_TYPE = 22;
@@ -50,7 +53,7 @@ public class Am2302Sensor implements TemperatureHumiditySensor {
     measureWithRetries();
 
     if (measurementFailed()) {
-      throw new SensorException(platformIdentifier, messageOfStatus(returnCode));
+      throw new SensorException(platformIdentifier, TEMPERATURE_SENSOR_TYPE, messageOfStatus(returnCode));
     }
 
     return new TemperatureHumiditySample(platformIdentifier, toDouble(temperature), toDouble(humidity));

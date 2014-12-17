@@ -4,7 +4,6 @@ import ch.retorte.sensorsamplor.receiver.SampleReceiver;
 import ch.retorte.sensorsamplor.sensor.Sample;
 import ch.retorte.sensorsamplor.sensor.Sensor;
 import ch.retorte.sensorsamplor.sensor.SensorException;
-import ch.retorte.sensorsamplor.sensor.ErrorSample;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.util.List;
@@ -13,7 +12,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 
 /**
- * Invokes measurements on a temperature/humidity sensor.
+ * Invokes measurements of sensors.
  */
 public class SensorInvoker implements Runnable {
 
@@ -34,7 +33,7 @@ public class SensorInvoker implements Runnable {
     try {
       invokeSensor();
     }
-    catch (Exception e) {
+    catch (Error e) {
       /* The scheduler stores exceptions instead of instantly reacting to them, so we need to do a little work here. */
       System.err.println(e.getMessage());
       System.exit(0);
@@ -61,9 +60,8 @@ public class SensorInvoker implements Runnable {
 
   @VisibleForTesting
   void processError(SensorException sensorException) {
-    ErrorSample errorSample = new ErrorSample(sensorException.getPlatformIdentifier(), sensorException.getMessage());
     for (SampleReceiver r : sampleReceivers) {
-      r.processError(errorSample);
+      r.processError(sensorException);
     }
   }
 }

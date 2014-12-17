@@ -2,6 +2,7 @@ package ch.retorte.sensorsamplor.receiver.file;
 
 import ch.retorte.sensorsamplor.receiver.SampleReceiver;
 import ch.retorte.sensorsamplor.sensor.Sample;
+import ch.retorte.sensorsamplor.sensor.SensorException;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
@@ -18,8 +19,9 @@ import static java.io.File.separator;
  */
 public class FileSampleReceiver implements SampleReceiver {
 
-  public static final String LOG_FILE_PREFIX = "sensor.log.";
-  public static final String ERROR_LOG_FILE_PREFIX = "error.log.";
+  public static final String LOG_FILE_PREFIX = "sensor.log";
+  public static final String ERROR_LOG_FILE_PREFIX = "error.log";
+  private static final String PART_DELIMITER = ".";
 
   private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
@@ -52,18 +54,30 @@ public class FileSampleReceiver implements SampleReceiver {
 
   @Override
   public void processSample(Sample sample) {
-    processSampleWithErrorHandling(LOG_FILE_PREFIX, sample);
+    processSampleWithErrorHandling(sample);
   }
 
   @Override
-  public void processError(Sample sample) {
-    processSampleWithErrorHandling(ERROR_LOG_FILE_PREFIX, sample);
+  public void processError(SensorException sensorException) {
+    processExceptionWithErrorHandling(sensorException);
   }
 
-  private void processSampleWithErrorHandling(String prefix, Sample sample) {
+
+
+
+  private void processSampleWithErrorHandling(Sample sample) {
+    processWithErrorHandling(LOG_FILE_PREFIX, sample.getSensorType(), sample.getDate(), sample.toString());
+  }
+
+  private void processExceptionWithErrorHandling(SensorException sensorException) {
+    processWithErrorHandling(ERROR_LOG_FILE_PREFIX, sensorException.getSensorType(), sensorException.getDate(), sensorException.getMessage());
+  }
+
+
+  private void processWithErrorHandling(String prefix, String sensorType, DateTime date, String payload) {
     try {
-      File logFile = getOrCreateLogFileFor(prefix, sample);
-      appendSampleToFile(sample, logFile);
+      File logFile = getOrCreateLogFileFor(prefix, sensorType, date);
+      appendSampleToFile(payload, logFile);
     }
     catch (FileNotFoundException fileNotFoundException) {
       throw new RuntimeException("No log file found for writing: " + fileNotFoundException.getMessage());
@@ -73,12 +87,8 @@ public class FileSampleReceiver implements SampleReceiver {
     }
   }
 
-  private void appendSampleToFile(Sample sample, File logFile) throws IOException {
-    Files.append(sample + LINE_SEPARATOR, logFile, Charsets.UTF_8);
-  }
-
-  private File getOrCreateLogFileFor(String prefix, Sample sample) throws IOException {
-    File logFile = new File(logFilePath + getFileNameForSample(prefix, sample));
+  private File getOrCreateLogFileFor(String prefix, String sensorType, DateTime date) throws IOException {
+    File logFile = new File(logFilePath + getFileNameFor(prefix, sensorType, date));
     if (!logFile.exists()) {
       boolean fileCreated = logFile.createNewFile();
       if (!fileCreated) {
@@ -88,12 +98,12 @@ public class FileSampleReceiver implements SampleReceiver {
     return logFile;
   }
 
-  private String getFileNameForSample(String prefix, Sample sample) {
-    return prefix + formatDateOf(sample);
+  private void appendSampleToFile(String payload, File logFile) throws IOException {
+    Files.append(payload + LINE_SEPARATOR, logFile, Charsets.UTF_8);
   }
 
-  private String formatDateOf(Sample sample) {
-    return format(sample.getDate());
+  private String getFileNameFor(String prefix, String sensorType, DateTime date) {
+    return prefix + PART_DELIMITER + sensorType + PART_DELIMITER + format(date);
   }
 
   @VisibleForTesting
