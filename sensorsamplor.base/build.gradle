@@ -4,4 +4,5 @@ group = 'ch.retorte.sensorsamplor'
 version = '0.0.1'
 
 dependencies {
+  compile 'com.hazelcast:hazelcast:3.3.3'
 }
