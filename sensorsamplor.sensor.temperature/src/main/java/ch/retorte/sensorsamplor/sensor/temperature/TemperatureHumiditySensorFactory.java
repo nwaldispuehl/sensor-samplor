@@ -25,4 +25,9 @@ public class TemperatureHumiditySensorFactory implements SensorFactory {
     }
      return new DummyTemperatureSensor(platformIdentifier);
   }
+
+  @Override
+  public String getSensorIdentifier() {
+    return Am2302Sensor.SENSOR_IDENTIFIER;
+  }
 }

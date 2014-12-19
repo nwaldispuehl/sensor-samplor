@@ -6,7 +6,7 @@ import com.hazelcast.core.*;
 /**
  * Created by nw on 18.12.14.
  */
-public class Consumer extends Actor {
+public class Consumer extends HazelcastSensorBus {
 
     private static final String NODE_NAME = "Consumer";
 

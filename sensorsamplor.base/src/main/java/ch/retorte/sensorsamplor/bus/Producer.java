@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by nw on 18.12.14.
  */
-public class Producer extends Actor implements Runnable {
+public class Producer extends HazelcastSensorBus implements Runnable {
 
     private static final String NODE_NAME = "Producer";
 

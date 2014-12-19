@@ -1,5 +1,6 @@
 package ch.retorte.sensorsamplor.invoker;
 
+import ch.retorte.sensorsamplor.bus.SensorBus;
 import ch.retorte.sensorsamplor.receiver.SampleReceiver;
 import ch.retorte.sensorsamplor.sensor.Sample;
 import ch.retorte.sensorsamplor.sensor.Sensor;
@@ -18,9 +19,11 @@ public class SensorInvoker implements Runnable {
 
   private final List<SampleReceiver> sampleReceivers = newArrayList();
   private final Sensor sensor;
+  private SensorBus sensorBus;
 
-  public SensorInvoker(Sensor sensor) {
+  public SensorInvoker(Sensor sensor, SensorBus sensorBus) {
     this.sensor = sensor;
+    this.sensorBus = sensorBus;
   }
 
   public void registerReceiver(SampleReceiver sampleReceiver) {
@@ -53,9 +56,10 @@ public class SensorInvoker implements Runnable {
 
   @VisibleForTesting
   void process(Sample sample) {
-    for (SampleReceiver r : sampleReceivers) {
-      r.processSample(sample);
-    }
+    sensorBus.send(sample);
+//    for (SampleReceiver r : sampleReceivers) {
+//      r.processSample(sample);
+//    }
   }
 
   @VisibleForTesting

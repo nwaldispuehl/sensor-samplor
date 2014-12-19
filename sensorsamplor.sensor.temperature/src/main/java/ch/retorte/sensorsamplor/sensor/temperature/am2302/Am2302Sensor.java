@@ -3,7 +3,6 @@ package ch.retorte.sensorsamplor.sensor.temperature.am2302;
 import ch.retorte.sensorsamplor.sensor.Sensor;
 import ch.retorte.sensorsamplor.sensor.SensorException;
 import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySample;
-import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySensor;
 import com.sun.jna.Library;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
@@ -16,7 +15,7 @@ import static ch.retorte.sensorsamplor.sensor.temperature.am2302.Am2302SensorSta
  */
 public class Am2302Sensor implements Sensor {
 
-  public static final String TEMPERATURE_SENSOR_TYPE = "temperature";
+  public static final String SENSOR_IDENTIFIER = "temperature";
 
   private static final String PI_DHT_LIBRARY_NAME = "PiDht";
   private static final int SENSOR_TYPE = 22;
@@ -53,7 +52,7 @@ public class Am2302Sensor implements Sensor {
     measureWithRetries();
 
     if (measurementFailed()) {
-      throw new SensorException(platformIdentifier, TEMPERATURE_SENSOR_TYPE, messageOfStatus(returnCode));
+      throw new SensorException(platformIdentifier, SENSOR_IDENTIFIER, messageOfStatus(returnCode));
     }
 
     return new TemperatureHumiditySample(platformIdentifier, toDouble(temperature), toDouble(humidity));

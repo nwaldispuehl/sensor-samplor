@@ -1,7 +1,6 @@
 package ch.retorte.sensorsamplor.sensor.temperature;
 
 import ch.retorte.sensorsamplor.sensor.Sample;
-import ch.retorte.sensorsamplor.sensor.temperature.am2302.Am2302Sensor;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -9,7 +8,7 @@ import org.joda.time.format.DateTimeFormatter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import static ch.retorte.sensorsamplor.sensor.temperature.am2302.Am2302Sensor.TEMPERATURE_SENSOR_TYPE;
+import static ch.retorte.sensorsamplor.sensor.temperature.am2302.Am2302Sensor.SENSOR_IDENTIFIER;
 import static org.joda.time.DateTime.now;
 
 
@@ -43,7 +42,7 @@ public class TemperatureHumiditySample implements Sample {
 
   @Override
   public String getSensorType() {
-    return TEMPERATURE_SENSOR_TYPE;
+    return SENSOR_IDENTIFIER;
   }
 
   public Double getTemperature() {

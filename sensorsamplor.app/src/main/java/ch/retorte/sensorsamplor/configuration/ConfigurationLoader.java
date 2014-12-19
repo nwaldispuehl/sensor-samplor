@@ -1,4 +1,4 @@
-package ch.retorte.sensorsamplor.utils;
+package ch.retorte.sensorsamplor.configuration;
 
 import java.io.InputStream;
 import java.util.Properties;

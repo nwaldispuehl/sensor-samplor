@@ -1,14 +1,14 @@
 package ch.retorte.sensorsamplor;
 
+import ch.retorte.sensorsamplor.bus.SensorBus;
 import ch.retorte.sensorsamplor.invoker.SensorInvokerManager;
 import ch.retorte.sensorsamplor.invoker.SensorInvoker;
-import ch.retorte.sensorsamplor.receiver.console.ConsolePrintSampleReceiver;
 import ch.retorte.sensorsamplor.receiver.file.FileSampleReceiver;
 import ch.retorte.sensorsamplor.sensor.Sensor;
 import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySensorFactory;
-import ch.retorte.sensorsamplor.utils.ConfigurationLoader;
+import ch.retorte.sensorsamplor.configuration.ConfigurationLoader;
 
-import static ch.retorte.sensorsamplor.utils.ConfigurationProperties.*;
+import static ch.retorte.sensorsamplor.configuration.ConfigurationProperties.*;
 
 /**
  * Main program of the pi temp station. A data sampling software written in Java for a DHT22 temperature/humidity sensor on a Raspberry Pi.
@@ -47,7 +47,11 @@ public class SensorSamplor {
   }
 
   private SensorInvoker createInvoker() {
-    return new SensorInvoker(createSensor());
+    return new SensorInvoker(createSensor(), createSensorBus());
+  }
+
+  private SensorBus createSensorBus() {
+    return null;
   }
 
   private Sensor createSensor() {
