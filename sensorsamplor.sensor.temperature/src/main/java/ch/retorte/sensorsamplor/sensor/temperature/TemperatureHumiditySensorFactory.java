@@ -1,5 +1,6 @@
 package ch.retorte.sensorsamplor.sensor.temperature;
 
+import ch.retorte.sensorsamplor.bus.SensorBus;
 import ch.retorte.sensorsamplor.sensor.Sensor;
 import ch.retorte.sensorsamplor.sensor.SensorFactory;
 import ch.retorte.sensorsamplor.sensor.temperature.am2302.Am2302Sensor;
@@ -16,18 +17,19 @@ public class TemperatureHumiditySensorFactory implements SensorFactory {
     this.gpioPin = gpioPin;
   }
 
-  public Sensor createSensorFor(String platformIdentifier) {
+  public Sensor createSensorFor(String platformIdentifier, SensorBus sensorBus) {
     try {
       return new Am2302Sensor(platformIdentifier, gpioPin);
-    }
-    catch (Throwable t) {
+    } catch (Throwable t) {
       System.err.println("Was not able to instantiate AM 3202 Sensor class: " + t.getMessage());
     }
-     return new DummyTemperatureSensor(platformIdentifier);
+    return new DummyTemperatureSensor(platformIdentifier);
   }
 
   @Override
-  public String getSensorIdentifier() {
-    return Am2302Sensor.SENSOR_IDENTIFIER;
+  public String getIdentifier() {
+    return Am2302Sensor.IDENTIFIER;
   }
+
 }
+

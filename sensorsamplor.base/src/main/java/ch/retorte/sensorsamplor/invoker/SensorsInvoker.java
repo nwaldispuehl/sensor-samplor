@@ -15,57 +15,67 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * Invokes measurements of sensors.
  */
-public class SensorInvoker implements Runnable {
+public class SensorsInvoker implements Runnable {
 
-  private final List<SampleReceiver> sampleReceivers = newArrayList();
-  private final Sensor sensor;
+  private final List<Sensor> sensors;
   private SensorBus sensorBus;
 
-  public SensorInvoker(Sensor sensor, SensorBus sensorBus) {
-    this.sensor = sensor;
+  public SensorsInvoker(List<Sensor> sensors, SensorBus sensorBus) {
+    this.sensors = sensors;
     this.sensorBus = sensorBus;
   }
-
-  public void registerReceiver(SampleReceiver sampleReceiver) {
-    sampleReceivers.add(sampleReceiver);
-  }
-
 
   @Override
   public void run() {
     try {
-      invokeSensor();
+      invokeSensors();
     }
     catch (Exception e) {
       /* The scheduler stores exceptions instead of instantly reacting to them, so we need to do a little work here. */
       System.err.println(e.getMessage());
       System.exit(0);
     }
-
   }
 
-  @VisibleForTesting
-  void invokeSensor() {
-    try {
-      process(sensor.measure());
-    }
-    catch (SensorException e) {
-      processError(e);
+  void invokeSensors() {
+    for (Sensor sensor : sensors) {
+      new Thread(new SensorRunner(sensor)).start();
     }
   }
 
   @VisibleForTesting
   void process(Sample sample) {
     sensorBus.send(sample);
-//    for (SampleReceiver r : sampleReceivers) {
-//      r.processSample(sample);
-//    }
   }
 
   @VisibleForTesting
   void processError(SensorException sensorException) {
-    for (SampleReceiver r : sampleReceivers) {
-      r.processError(sensorException);
+    // TODO: What to do here?
+  }
+
+  class SensorRunner implements Runnable {
+
+    private Sensor sensor;
+
+    public SensorRunner(Sensor sensor) {
+      this.sensor = sensor;
+    }
+
+    @Override
+    public void run() {
+      invokeSensor(sensor);
+    }
+
+    @VisibleForTesting
+    void invokeSensor(Sensor sensor) {
+      try {
+        process(sensor.measure());
+      }
+      catch (SensorException e) {
+        processError(e);
+      }
     }
   }
+
+
 }

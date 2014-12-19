@@ -15,7 +15,7 @@ import static ch.retorte.sensorsamplor.sensor.temperature.am2302.Am2302SensorSta
  */
 public class Am2302Sensor implements Sensor {
 
-  public static final String SENSOR_IDENTIFIER = "temperature";
+  public static final String IDENTIFIER = "temperature";
 
   private static final String PI_DHT_LIBRARY_NAME = "PiDht";
   private static final int SENSOR_TYPE = 22;
@@ -52,7 +52,7 @@ public class Am2302Sensor implements Sensor {
     measureWithRetries();
 
     if (measurementFailed()) {
-      throw new SensorException(platformIdentifier, SENSOR_IDENTIFIER, messageOfStatus(returnCode));
+      throw new SensorException(platformIdentifier, IDENTIFIER, messageOfStatus(returnCode));
     }
 
     return new TemperatureHumiditySample(platformIdentifier, toDouble(temperature), toDouble(humidity));

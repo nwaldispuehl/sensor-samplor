@@ -9,7 +9,7 @@ import com.hazelcast.core.*;
 import java.util.List;
 
 /**
- * Replicates sent samples to all nodes in the cluster.
+ * Replicates sent samples to all nodes in the cluster and also retrieves them.
  */
 public class HazelcastSensorBus implements SensorBus {
 
@@ -17,40 +17,41 @@ public class HazelcastSensorBus implements SensorBus {
 
   private RingBuffer<Sample> sampleBuffer;
 
-    protected HazelcastSensorBus() {
-    }
+  public HazelcastSensorBus(String nodeName, String busName, List<String> networkInterfaces) {
+    initializeWith(nodeName, busName, networkInterfaces);
+  }
 
-    public void initializeWith(String nodeName, String busName, List<String> interfaces) {
-      Config config = createConfigWith(nodeName, interfaces);
-      HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance(config);
+  public void initializeWith(String nodeName, String busName, List<String> networkInterfaces) {
+    Config config = createConfigWith(nodeName, networkInterfaces);
+    HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance(config);
 
-      IList<Sample> list = hazelcastInstance.getList(busName);
-      ILock lock = hazelcastInstance.getLock(busName);
+    IList<Sample> list = hazelcastInstance.getList(busName);
+    ILock lock = hazelcastInstance.getLock(busName);
 
-      createBufferWith(list, lock);
-    }
+    createBufferWith(list, lock);
+  }
 
-    private Config createConfigWith(String nodeName, List<String> networkInterfaces) {
-      Config config = new Config(nodeName).setProperty("hazelcast.logging.type", "none");
-      setNetworkConfigWith(config.getNetworkConfig(), networkInterfaces);
-      return config;
-    }
+  private Config createConfigWith(String nodeName, List<String> networkInterfaces) {
+    Config config = new Config(nodeName).setProperty("hazelcast.logging.type", "none");
+    setNetworkConfigWith(config.getNetworkConfig(), networkInterfaces);
+    return config;
+  }
 
-    private void setNetworkConfigWith(NetworkConfig networkConfig, List<String> networkInterfaces) {
-      networkConfig.getJoin().getMulticastConfig().setEnabled(true);
+  private void setNetworkConfigWith(NetworkConfig networkConfig, List<String> networkInterfaces) {
+    networkConfig.getJoin().getMulticastConfig().setEnabled(true);
 
-      if (!networkInterfaces.isEmpty()) {
-        InterfacesConfig interfacesConfig = networkConfig.getInterfaces();
-        interfacesConfig.setEnabled(true);
-        for (String i : networkInterfaces) {
-          interfacesConfig.addInterface(i);
-        }
+    if (!networkInterfaces.isEmpty()) {
+      InterfacesConfig interfacesConfig = networkConfig.getInterfaces();
+      interfacesConfig.setEnabled(true);
+      for (String i : networkInterfaces) {
+        interfacesConfig.addInterface(i);
       }
     }
+  }
 
-    private void createBufferWith(IList<Sample> list, ILock lock) {
-      sampleBuffer = new RingBuffer<>(list, lock, BUFFER_SIZE);
-    }
+  private void createBufferWith(IList<Sample> list, ILock lock) {
+    sampleBuffer = new RingBuffer<>(list, lock, BUFFER_SIZE);
+  }
 
   @Override
   public void send(Sample sample) {

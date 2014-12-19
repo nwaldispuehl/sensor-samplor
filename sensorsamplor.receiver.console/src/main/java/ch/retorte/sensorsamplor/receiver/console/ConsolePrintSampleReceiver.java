@@ -1,5 +1,6 @@
 package ch.retorte.sensorsamplor.receiver.console;
 
+import ch.retorte.sensorsamplor.bus.SensorBus;
 import ch.retorte.sensorsamplor.receiver.SampleReceiver;
 import ch.retorte.sensorsamplor.sensor.Sample;
 import ch.retorte.sensorsamplor.sensor.SensorException;
@@ -7,7 +8,13 @@ import ch.retorte.sensorsamplor.sensor.SensorException;
 /**
  * Prints all received samples instantly to the standard out.
  */
-public class ConsolePrintSampleReceiver implements SampleReceiver {
+public class ConsolePrintSampleReceiver extends SampleReceiver {
+
+  public static final String IDENTIFIER = "console";
+
+  public ConsolePrintSampleReceiver(SensorBus sensorBus) {
+    super(sensorBus);
+  }
 
   public void processSample(Sample sample) {
       System.out.println(sample);

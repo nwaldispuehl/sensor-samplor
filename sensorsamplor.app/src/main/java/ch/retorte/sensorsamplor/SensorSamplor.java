@@ -1,21 +1,32 @@
 package ch.retorte.sensorsamplor;
 
+import ch.retorte.sensorsamplor.bus.HazelcastSensorBus;
 import ch.retorte.sensorsamplor.bus.SensorBus;
 import ch.retorte.sensorsamplor.invoker.SensorInvokerManager;
-import ch.retorte.sensorsamplor.invoker.SensorInvoker;
-import ch.retorte.sensorsamplor.receiver.file.FileSampleReceiver;
+import ch.retorte.sensorsamplor.invoker.SensorsInvoker;
+import ch.retorte.sensorsamplor.receiver.ReceiverFactory;
+import ch.retorte.sensorsamplor.receiver.SampleReceiver;
+import ch.retorte.sensorsamplor.receiver.console.ConsolePrintSampleReceiverFactory;
+import ch.retorte.sensorsamplor.receiver.file.FileSampleReceiverFactory;
 import ch.retorte.sensorsamplor.sensor.Sensor;
+import ch.retorte.sensorsamplor.sensor.SensorFactory;
 import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySensorFactory;
 import ch.retorte.sensorsamplor.configuration.ConfigurationLoader;
 
+import java.util.List;
+
 import static ch.retorte.sensorsamplor.configuration.ConfigurationProperties.*;
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Main program of the pi temp station. A data sampling software written in Java for a DHT22 temperature/humidity sensor on a Raspberry Pi.
  */
 public class SensorSamplor {
 
-  ConfigurationLoader configurationLoader;
+  private ConfigurationLoader configurationLoader;
+  private SensorBus sensorBus;
+  private List<Sensor> sensors = newArrayList();
+  private List<SampleReceiver> receivers = newArrayList();
 
   public static void main(String[] args) {
     new SensorSamplor().start();
@@ -23,6 +34,9 @@ public class SensorSamplor {
 
   public void start() {
     loadConfiguration();
+    createSensorBus();
+    loadSensors();
+    loadReceivers();
     createManager().scheduleIntervals(getMeasurementInterval());
   }
 
@@ -36,26 +50,47 @@ public class SensorSamplor {
     }
   }
 
+  private void createSensorBus() {
+    sensorBus = new HazelcastSensorBus(getSensorPlatformIdentifier(), getBusName(), getNetworkInterfaces());
+  }
+
+  private void loadSensors() {
+    List<String> activeSensor = getActiveSensors();
+    for (SensorFactory f : discoverSensors()) {
+      if (activeSensor.contains(f.getIdentifier())) {
+        sensors.add(f.createSensorFor(getSensorPlatformIdentifier(), sensorBus));
+      }
+    }
+  }
+
+  private List<SensorFactory> discoverSensors() {
+    List<SensorFactory> sensorFactories = newArrayList();
+    sensorFactories.add(new TemperatureHumiditySensorFactory(getGpioPin()));
+    return sensorFactories;
+  }
+
+  private void loadReceivers() {
+    List<String> activeReceivers = getActiveReceivers();
+    for (ReceiverFactory f : discoverReceivers()) {
+      if (activeReceivers.contains(f.getIdentifier())) {
+        receivers.add(f.createReceiverFor(getSensorPlatformIdentifier(), sensorBus));
+      }
+    }
+  }
+
+  private List<ReceiverFactory> discoverReceivers() {
+    List<ReceiverFactory> receiverFactories = newArrayList();
+    receiverFactories.add(new ConsolePrintSampleReceiverFactory());
+    receiverFactories.add(new FileSampleReceiverFactory(getLoggingDirectory()));
+    return receiverFactories;
+  }
+
   private SensorInvokerManager createManager() {
-    return new SensorInvokerManager(addReceiversTo(createInvoker()));
+    return new SensorInvokerManager(createInvoker());
   }
 
-  private SensorInvoker addReceiversTo(SensorInvoker sensorInvoker) {
-//    sensorInvoker.registerReceiver(new ConsolePrintSampleReceiver());
-    sensorInvoker.registerReceiver(new FileSampleReceiver(getLoggingDirectory()));
-    return sensorInvoker;
-  }
-
-  private SensorInvoker createInvoker() {
-    return new SensorInvoker(createSensor(), createSensorBus());
-  }
-
-  private SensorBus createSensorBus() {
-    return null;
-  }
-
-  private Sensor createSensor() {
-    return new TemperatureHumiditySensorFactory(getGpioPin()).createSensorFor(getSensorPlatformIdentifier());
+  private SensorsInvoker createInvoker() {
+    return new SensorsInvoker(sensors, sensorBus);
   }
 
   private int getMeasurementInterval() {
@@ -72,6 +107,22 @@ public class SensorSamplor {
 
   private String getSensorPlatformIdentifier() {
     return configurationLoader.getStringProperty(SENSOR_PLATFORM_IDENTIFIER);
+  }
+
+  private String getBusName() {
+    return configurationLoader.getStringProperty(BUS_NAME);
+  }
+
+  private List<String> getNetworkInterfaces() {
+    return configurationLoader.getStringListProperty(INTERFACES);
+  }
+
+  private List<String> getActiveSensors() {
+    return configurationLoader.getStringListProperty(ACTIVE_SENSORS);
+  }
+
+  private List<String> getActiveReceivers() {
+    return configurationLoader.getStringListProperty(ACTIVE_RECEIVERS);
   }
 
 }

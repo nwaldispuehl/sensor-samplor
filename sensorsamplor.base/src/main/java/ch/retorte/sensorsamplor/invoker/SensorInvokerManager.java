@@ -13,9 +13,9 @@ public class SensorInvokerManager {
 
   private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-  private final SensorInvoker invoker;
+  private final SensorsInvoker invoker;
 
-  public SensorInvokerManager(SensorInvoker invoker) {
+  public SensorInvokerManager(SensorsInvoker invoker) {
     this.invoker = invoker;
   }
 

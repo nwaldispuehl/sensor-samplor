@@ -3,7 +3,7 @@ package ch.retorte.sensorsamplor.bus;
 import ch.retorte.sensorsamplor.sensor.Sample;
 
 /**
- * @author: nw.
+ * Knows how to react on received sample.
  */
 public interface SampleListener {
 

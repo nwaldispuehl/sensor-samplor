@@ -1,14 +1,26 @@
 package ch.retorte.sensorsamplor.receiver;
 
+import ch.retorte.sensorsamplor.bus.SampleListener;
+import ch.retorte.sensorsamplor.bus.SensorBus;
 import ch.retorte.sensorsamplor.sensor.Sample;
 import ch.retorte.sensorsamplor.sensor.SensorException;
 
 /**
  * Knows what to do with samples from a sensor.
  */
-public interface SampleReceiver {
+public abstract class SampleReceiver {
 
-  void processSample(Sample sample);
+  protected SampleReceiver(SensorBus sensorBus) {
+    sensorBus.registerSampleListener(new SampleListener() {
 
-  void processError(SensorException sensorException);
+      @Override
+      public void onSampleAdded(Sample sample) {
+        processSample(sample);
+      }
+    });
+  }
+
+  protected abstract void processSample(Sample sample);
+
+  protected abstract void processError(SensorException sensorException);
 }

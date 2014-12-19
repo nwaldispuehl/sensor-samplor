@@ -1,6 +1,7 @@
 package ch.retorte.sensorsamplor.sensor.temperature;
 
 import ch.retorte.sensorsamplor.sensor.Sample;
+import ch.retorte.sensorsamplor.utils.SampleDateFormatter;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -8,7 +9,8 @@ import org.joda.time.format.DateTimeFormatter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import static ch.retorte.sensorsamplor.sensor.temperature.am2302.Am2302Sensor.SENSOR_IDENTIFIER;
+import static ch.retorte.sensorsamplor.sensor.temperature.am2302.Am2302Sensor.IDENTIFIER;
+import static ch.retorte.sensorsamplor.utils.SampleDateFormatter.format;
 import static org.joda.time.DateTime.now;
 
 
@@ -17,7 +19,7 @@ import static org.joda.time.DateTime.now;
  */
 public class TemperatureHumiditySample implements Sample {
 
-  private final DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd:HH:mm:ss Z");
+
 
   private final DateTime date = now();
   private final String platformIdentifier;
@@ -42,7 +44,7 @@ public class TemperatureHumiditySample implements Sample {
 
   @Override
   public String getSensorType() {
-    return SENSOR_IDENTIFIER;
+    return IDENTIFIER;
   }
 
   public Double getTemperature() {
@@ -55,12 +57,10 @@ public class TemperatureHumiditySample implements Sample {
 
   @Override
   public String toString() {
-    return "[" + getFormattedDate() + " " + getPlatformIdentifier() + "] " + toOneDigitDouble(getTemperature()) + "°C, " + toOneDigitDouble(getHumidity()) + "%";
+    return "[" + format(getDate()) + " " + getPlatformIdentifier() + "] " + toOneDigitDouble(getTemperature()) + "°C, " + toOneDigitDouble(getHumidity()) + "%";
   }
 
-  private String getFormattedDate() {
-    return dateFormatter.print(getDate());
-  }
+
 
   private double toOneDigitDouble(Double value) {
     return new BigDecimal(value).setScale(1, RoundingMode.HALF_UP).doubleValue();
