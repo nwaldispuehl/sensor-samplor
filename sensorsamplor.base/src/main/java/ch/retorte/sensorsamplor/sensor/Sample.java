@@ -5,9 +5,9 @@ import org.joda.time.DateTime;
 import java.io.Serializable;
 
 /**
- * The most elementary data item a sample can show - the time stamp.
+ * A single data item.
  */
-public interface Sample extends Serializable{
+public interface Sample extends Serializable {
 
   /**
    * Returns the point in time this sample was taken.
@@ -15,7 +15,10 @@ public interface Sample extends Serializable{
   DateTime getDate();
 
   /**
-   * Returns the string identifier of the platform where the sample was taken. This might be the name of the computer or some geographic designation.
+   * Returns the string identifier of the platform where the sample was taken.
+   * This might be the name of the computer or some geographic designation which
+   * helps to tell the different samples apart, resp. to assign it doubtless to
+   * a single sensor platform.
    */
   String getPlatformIdentifier();
 

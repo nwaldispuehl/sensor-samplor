@@ -8,6 +8,8 @@ import com.hazelcast.core.*;
 
 import java.util.List;
 
+import static com.hazelcast.core.Hazelcast.newHazelcastInstance;
+
 /**
  * Replicates sent samples to all nodes in the cluster and also retrieves them.
  */
@@ -17,13 +19,13 @@ public class HazelcastSensorBus implements SensorBus {
 
   private RingBuffer<Sample> sampleBuffer;
 
-  public HazelcastSensorBus(String nodeName, String busName, List<String> networkInterfaces) {
-    initializeWith(nodeName, busName, networkInterfaces);
+  public HazelcastSensorBus(String nodeName, String busName, String username, String password, List<String> networkInterfaces) {
+    initializeWith(nodeName, busName, username, password, networkInterfaces);
   }
 
-  public void initializeWith(String nodeName, String busName, List<String> networkInterfaces) {
-    Config config = createConfigWith(nodeName, networkInterfaces);
-    HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance(config);
+  public void initializeWith(String nodeName, String busName, String username, String password, List<String> networkInterfaces) {
+    Config config = createConfigWith(nodeName, username, password, networkInterfaces);
+    HazelcastInstance hazelcastInstance = newHazelcastInstance(config);
 
     IList<Sample> list = hazelcastInstance.getList(busName);
     ILock lock = hazelcastInstance.getLock(busName);
@@ -31,8 +33,9 @@ public class HazelcastSensorBus implements SensorBus {
     createBufferWith(list, lock);
   }
 
-  private Config createConfigWith(String nodeName, List<String> networkInterfaces) {
+  private Config createConfigWith(String nodeName, String username, String password, List<String> networkInterfaces) {
     Config config = new Config(nodeName).setProperty("hazelcast.logging.type", "none");
+    config.getGroupConfig().setName(username).setPassword(password);
     setNetworkConfigWith(config.getNetworkConfig(), networkInterfaces);
     return config;
   }

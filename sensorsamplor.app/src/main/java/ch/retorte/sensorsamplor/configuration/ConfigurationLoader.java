@@ -1,7 +1,5 @@
 package ch.retorte.sensorsamplor.configuration;
 
-import com.google.common.collect.Lists;
-
 import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
@@ -14,6 +12,8 @@ import static com.google.common.collect.Lists.newArrayList;
 public class ConfigurationLoader {
 
   private final static String LIST_DELIMITER = ",";
+
+  private final static String SYSTEM_CONFIG_DIRECTORY = "/etc/sensor-samplor/";
 
   private final static String CONFIG_FILE_NAME = "sensor-samplor.properties";
 

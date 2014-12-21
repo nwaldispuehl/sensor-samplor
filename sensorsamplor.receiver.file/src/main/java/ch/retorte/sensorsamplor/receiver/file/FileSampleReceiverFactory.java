@@ -1,13 +1,12 @@
 package ch.retorte.sensorsamplor.receiver.file;
 
-import ch.retorte.sensorsamplor.bus.SensorBus;
 import ch.retorte.sensorsamplor.receiver.ReceiverFactory;
 import ch.retorte.sensorsamplor.receiver.SampleReceiver;
 
 import static ch.retorte.sensorsamplor.receiver.file.FileSampleReceiver.IDENTIFIER;
 
 /**
- * Created by nw on 19.12.14.
+ * Creates a receiver which stores samples in log files.
  */
 public class FileSampleReceiverFactory implements ReceiverFactory {
 
@@ -18,8 +17,8 @@ public class FileSampleReceiverFactory implements ReceiverFactory {
   }
 
   @Override
-  public SampleReceiver createReceiverFor(String platformIdentifier, SensorBus sensorBus) {
-    return new FileSampleReceiver(sensorBus, logFilePath);
+  public SampleReceiver createReceiver() {
+    return new FileSampleReceiver(logFilePath);
   }
 
   @Override

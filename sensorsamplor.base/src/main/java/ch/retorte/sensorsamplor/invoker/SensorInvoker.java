@@ -1,7 +1,6 @@
 package ch.retorte.sensorsamplor.invoker;
 
 import ch.retorte.sensorsamplor.bus.SensorBus;
-import ch.retorte.sensorsamplor.receiver.SampleReceiver;
 import ch.retorte.sensorsamplor.sensor.Sample;
 import ch.retorte.sensorsamplor.sensor.Sensor;
 import ch.retorte.sensorsamplor.sensor.SensorException;
@@ -9,20 +8,17 @@ import com.google.common.annotations.VisibleForTesting;
 
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
-
-
 /**
  * Invokes measurements of sensors.
  */
-public class SensorsInvoker implements Runnable {
+public class SensorInvoker implements Runnable {
 
-  private final List<Sensor> sensors;
   private SensorBus sensorBus;
+  private final List<Sensor> sensors;
 
-  public SensorsInvoker(List<Sensor> sensors, SensorBus sensorBus) {
-    this.sensors = sensors;
+  public SensorInvoker(SensorBus sensorBus, List<Sensor> sensors) {
     this.sensorBus = sensorBus;
+    this.sensors = sensors;
   }
 
   @Override
@@ -39,7 +35,7 @@ public class SensorsInvoker implements Runnable {
 
   void invokeSensors() {
     for (Sensor sensor : sensors) {
-      new Thread(new SensorRunner(sensor)).start();
+      new Thread(createRunnerWith(sensor)).start();
     }
   }
 
@@ -50,9 +46,15 @@ public class SensorsInvoker implements Runnable {
 
   @VisibleForTesting
   void processError(SensorException sensorException) {
-    // TODO: What to do here?
+    sensorBus.send(sensorException);
   }
 
+  @VisibleForTesting
+  SensorRunner createRunnerWith(Sensor sensor) {
+    return new SensorRunner(sensor);
+  }
+
+  @VisibleForTesting
   class SensorRunner implements Runnable {
 
     private Sensor sensor;

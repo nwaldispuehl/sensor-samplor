@@ -1,6 +1,5 @@
 package ch.retorte.sensorsamplor.receiver.file;
 
-import ch.retorte.sensorsamplor.bus.SensorBus;
 import ch.retorte.sensorsamplor.receiver.SampleReceiver;
 import ch.retorte.sensorsamplor.sensor.Sample;
 import ch.retorte.sensorsamplor.sensor.SensorException;
@@ -18,7 +17,7 @@ import static java.io.File.separator;
 /**
  * Saves samples to a log file carrying the current date as name.
  */
-public class FileSampleReceiver extends SampleReceiver {
+public class FileSampleReceiver implements SampleReceiver {
 
   public static final String IDENTIFIER = "logfile";
 
@@ -32,9 +31,7 @@ public class FileSampleReceiver extends SampleReceiver {
 
   private final String logFilePath;
 
-  public FileSampleReceiver(SensorBus sensorBus, String logFilePath) {
-    super(sensorBus);
-
+  public FileSampleReceiver(String logFilePath) {
     this.logFilePath = checkForTrailingDelimiter(logFilePath);
     conditionallyCreateLogFilePath();
   }

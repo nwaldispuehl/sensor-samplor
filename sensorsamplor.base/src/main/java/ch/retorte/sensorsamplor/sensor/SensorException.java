@@ -4,7 +4,7 @@ import org.joda.time.DateTime;
 
 import static org.joda.time.DateTime.now;
 
-public class SensorException extends Exception {
+public class SensorException extends Exception implements Sample {
 
   private DateTime date = now();
   private String platformIdentifier;

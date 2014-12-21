@@ -3,9 +3,10 @@ package ch.retorte.sensorsamplor;
 import ch.retorte.sensorsamplor.bus.HazelcastSensorBus;
 import ch.retorte.sensorsamplor.bus.SensorBus;
 import ch.retorte.sensorsamplor.invoker.SensorInvokerManager;
-import ch.retorte.sensorsamplor.invoker.SensorsInvoker;
+import ch.retorte.sensorsamplor.invoker.SensorInvoker;
 import ch.retorte.sensorsamplor.receiver.ReceiverFactory;
 import ch.retorte.sensorsamplor.receiver.SampleReceiver;
+import ch.retorte.sensorsamplor.receiver.SampleReceiverManager;
 import ch.retorte.sensorsamplor.receiver.console.ConsolePrintSampleReceiverFactory;
 import ch.retorte.sensorsamplor.receiver.file.FileSampleReceiverFactory;
 import ch.retorte.sensorsamplor.sensor.Sensor;
@@ -35,9 +36,10 @@ public class SensorSamplor {
   public void start() {
     loadConfiguration();
     createSensorBus();
-    loadSensors();
     loadReceivers();
-    createManager().scheduleIntervals(getMeasurementInterval());
+    createReceiverManager();
+    loadSensors();
+    createSensorManager().scheduleIntervals(getMeasurementInterval());
   }
 
   private void loadConfiguration() {
@@ -51,7 +53,7 @@ public class SensorSamplor {
   }
 
   private void createSensorBus() {
-    sensorBus = new HazelcastSensorBus(getSensorPlatformIdentifier(), getBusName(), getNetworkInterfaces());
+    sensorBus = new HazelcastSensorBus(getSensorPlatformIdentifier(), getBusName(), getUsername(), getPassword(), getNetworkInterfaces());
   }
 
   private void loadSensors() {
@@ -73,7 +75,7 @@ public class SensorSamplor {
     List<String> activeReceivers = getActiveReceivers();
     for (ReceiverFactory f : discoverReceivers()) {
       if (activeReceivers.contains(f.getIdentifier())) {
-        receivers.add(f.createReceiverFor(getSensorPlatformIdentifier(), sensorBus));
+        receivers.add(f.createReceiver());
       }
     }
   }
@@ -85,12 +87,16 @@ public class SensorSamplor {
     return receiverFactories;
   }
 
-  private SensorInvokerManager createManager() {
-    return new SensorInvokerManager(createInvoker());
+  private SampleReceiverManager createReceiverManager() {
+    return new SampleReceiverManager(sensorBus, receivers, getReceiverSensorPattern(), getReceiverPlatformPattern());
   }
 
-  private SensorsInvoker createInvoker() {
-    return new SensorsInvoker(sensors, sensorBus);
+  private SensorInvokerManager createSensorManager() {
+    return new SensorInvokerManager(createSensorInvoker());
+  }
+
+  private SensorInvoker createSensorInvoker() {
+    return new SensorInvoker(sensorBus, sensors);
   }
 
   private int getMeasurementInterval() {
@@ -113,6 +119,14 @@ public class SensorSamplor {
     return configurationLoader.getStringProperty(BUS_NAME);
   }
 
+  private String getUsername() {
+    return configurationLoader.getStringProperty(BUS_USERNAME);
+  }
+
+  private String getPassword() {
+    return configurationLoader.getStringProperty(BUS_PASSWORD);
+  }
+
   private List<String> getNetworkInterfaces() {
     return configurationLoader.getStringListProperty(INTERFACES);
   }
@@ -123,6 +137,14 @@ public class SensorSamplor {
 
   private List<String> getActiveReceivers() {
     return configurationLoader.getStringListProperty(ACTIVE_RECEIVERS);
+  }
+
+  private String getReceiverSensorPattern() {
+    return configurationLoader.getStringProperty(RECEIVER_SENSOR_TYPE_PATTERN);
+  }
+
+  private String getReceiverPlatformPattern() {
+    return configurationLoader.getStringProperty(RECEIVER_PLATFORM_IDENTIFIER_PATTERN);
   }
 
 }

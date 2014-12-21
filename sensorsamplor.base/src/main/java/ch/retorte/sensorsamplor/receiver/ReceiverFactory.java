@@ -12,5 +12,5 @@ public interface ReceiverFactory extends Identifiable {
   /**
    * Returns the receiver of this implementation.
    */
-  SampleReceiver createReceiverFor(String platformIdentifier, SensorBus sensorBus);
+  SampleReceiver createReceiver();
 }
