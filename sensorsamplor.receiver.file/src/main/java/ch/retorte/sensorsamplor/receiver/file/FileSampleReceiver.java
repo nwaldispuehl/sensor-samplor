@@ -11,6 +11,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.io.*;
+import java.util.List;
 
 import static java.io.File.separator;
 
@@ -55,12 +56,12 @@ public class FileSampleReceiver implements SampleReceiver {
   }
 
   @Override
-  public void processSample(Sample sample) {
+  public void processSample(List<Sample> sampleBuffer, Sample sample) {
     processSampleWithErrorHandling(sample);
   }
 
   @Override
-  public void processError(SensorException sensorException) {
+  public void processError(List<Sample> sampleBuffer, SensorException sensorException) {
     processExceptionWithErrorHandling(sensorException);
   }
 
@@ -69,7 +70,7 @@ public class FileSampleReceiver implements SampleReceiver {
   }
 
   private void processExceptionWithErrorHandling(SensorException sensorException) {
-    processWithErrorHandling(ERROR_LOG_FILE_PREFIX, sensorException.getSensorType(), sensorException.getDate(), sensorException.getMessage());
+    processWithErrorHandling(ERROR_LOG_FILE_PREFIX, sensorException.getSensorType(), sensorException.getDate(), sensorException.toString());
   }
 
   private void processWithErrorHandling(String prefix, String sensorType, DateTime date, String payload) {

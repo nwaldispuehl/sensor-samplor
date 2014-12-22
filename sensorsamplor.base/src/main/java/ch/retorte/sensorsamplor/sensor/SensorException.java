@@ -2,10 +2,15 @@ package ch.retorte.sensorsamplor.sensor;
 
 import org.joda.time.DateTime;
 
+import java.util.UUID;
+
+import static ch.retorte.sensorsamplor.sensor.FormattedSample.formatSample;
+import static java.util.UUID.randomUUID;
 import static org.joda.time.DateTime.now;
 
 public class SensorException extends Exception implements Sample {
 
+  private UUID uuid = randomUUID();
   private DateTime date = now();
   private String platformIdentifier;
   private String sensorType;
@@ -14,6 +19,11 @@ public class SensorException extends Exception implements Sample {
     super(message);
     this.platformIdentifier = platformIdentifier;
     this.sensorType = sensorType;
+  }
+
+  @Override
+  public UUID getId() {
+    return uuid;
   }
 
   public DateTime getDate() {
@@ -26,5 +36,10 @@ public class SensorException extends Exception implements Sample {
 
   public String getSensorType() {
     return sensorType;
+  }
+
+  @Override
+  public String toString() {
+    return formatSample(this) + getMessage();
   }
 }

@@ -2,6 +2,10 @@ package ch.retorte.sensorsamplor.receiver.file;
 
 import ch.retorte.sensorsamplor.receiver.ReceiverFactory;
 import ch.retorte.sensorsamplor.receiver.SampleReceiver;
+import com.google.common.collect.Lists;
+
+import java.util.Collection;
+import java.util.Map;
 
 import static ch.retorte.sensorsamplor.receiver.file.FileSampleReceiver.IDENTIFIER;
 
@@ -10,11 +14,9 @@ import static ch.retorte.sensorsamplor.receiver.file.FileSampleReceiver.IDENTIFI
  */
 public class FileSampleReceiverFactory implements ReceiverFactory {
 
-  private String logFilePath;
+  public static final String LOGGING_DIRECTORY = "sensorsamplor.receiver.logfile.logging_directory";
 
-  public FileSampleReceiverFactory(String logFilePath) {
-    this.logFilePath = logFilePath;
-  }
+  private String logFilePath;
 
   @Override
   public SampleReceiver createReceiver() {
@@ -24,5 +26,17 @@ public class FileSampleReceiverFactory implements ReceiverFactory {
   @Override
   public String getIdentifier() {
     return IDENTIFIER;
+  }
+
+  @Override
+  public Collection<String> getConfigurationKeys() {
+    return Lists.newArrayList(LOGGING_DIRECTORY);
+  }
+
+  @Override
+  public void setConfigurationValues(Map<String, String> configuration) {
+    if (configuration.containsKey(LOGGING_DIRECTORY)) {
+      logFilePath = configuration.get(LOGGING_DIRECTORY);
+    }
   }
 }

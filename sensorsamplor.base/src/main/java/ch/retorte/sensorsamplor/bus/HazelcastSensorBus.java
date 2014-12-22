@@ -15,22 +15,20 @@ import static com.hazelcast.core.Hazelcast.newHazelcastInstance;
  */
 public class HazelcastSensorBus implements SensorBus {
 
-  private static final int BUFFER_SIZE = 4096;
-
   private RingBuffer<Sample> sampleBuffer;
 
-  public HazelcastSensorBus(String nodeName, String busName, String username, String password, List<String> networkInterfaces) {
-    initializeWith(nodeName, busName, username, password, networkInterfaces);
+  public HazelcastSensorBus(String nodeName, String busName, String username, String password, int bufferSize, List<String> networkInterfaces) {
+    initializeWith(nodeName, busName, username, password, bufferSize, networkInterfaces);
   }
 
-  public void initializeWith(String nodeName, String busName, String username, String password, List<String> networkInterfaces) {
+  public void initializeWith(String nodeName, String busName, String username, String password, int bufferSize, List<String> networkInterfaces) {
     Config config = createConfigWith(nodeName, username, password, networkInterfaces);
     HazelcastInstance hazelcastInstance = newHazelcastInstance(config);
 
     IList<Sample> list = hazelcastInstance.getList(busName);
     ILock lock = hazelcastInstance.getLock(busName);
 
-    createBufferWith(list, lock);
+    createBufferWith(list, lock, bufferSize);
   }
 
   private Config createConfigWith(String nodeName, String username, String password, List<String> networkInterfaces) {
@@ -52,8 +50,8 @@ public class HazelcastSensorBus implements SensorBus {
     }
   }
 
-  private void createBufferWith(IList<Sample> list, ILock lock) {
-    sampleBuffer = new RingBuffer<>(list, lock, BUFFER_SIZE);
+  private void createBufferWith(IList<Sample> list, ILock lock, int bufferSize) {
+    sampleBuffer = new RingBuffer<>(list, lock, bufferSize);
   }
 
   @Override
@@ -67,9 +65,14 @@ public class HazelcastSensorBus implements SensorBus {
 
       @Override
       void sampleAdded(Sample sample) {
-        sampleListener.onSampleAdded(sample);
+        sampleListener.onSampleAdded(getBuffer(), sample);
       }
     }, true);
+  }
+
+  @Override
+  public List<Sample> getBuffer() {
+    return sampleBuffer.getBuffer();
   }
 
   private abstract class ItemListenerAdapter implements ItemListener<Sample> {

@@ -36,7 +36,7 @@ public class SampleReceiverManager {
     sensorBus.registerSampleListener(new SampleListener() {
 
       @Override
-      public void onSampleAdded(Sample sample) {
+      public void onSampleAdded(List<Sample> sampleBuffer, Sample sample) {
         processSample(sample);
       }
     });
@@ -85,10 +85,10 @@ public class SampleReceiverManager {
     @VisibleForTesting
     void invokeSampleReceiver(Sample sample, SampleReceiver receiver) {
       if (sample instanceof SensorException) {
-        receiver.processError((SensorException) sample);
+        receiver.processError(sensorBus.getBuffer(), (SensorException) sample);
       }
       else {
-        receiver.processSample(sample);
+        receiver.processSample(sensorBus.getBuffer(), sample);
       }
     }
   }

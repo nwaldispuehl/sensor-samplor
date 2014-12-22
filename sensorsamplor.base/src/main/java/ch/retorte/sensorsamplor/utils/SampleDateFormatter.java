@@ -5,7 +5,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 /**
- * Created by nw on 19.12.14.
+ * Formats the date in a nice way.
  */
 public class SampleDateFormatter {
 

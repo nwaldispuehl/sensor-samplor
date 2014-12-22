@@ -6,16 +6,19 @@ import ch.retorte.sensorsamplor.sensor.SensorFactory;
 import ch.retorte.sensorsamplor.sensor.temperature.am2302.Am2302Sensor;
 import ch.retorte.sensorsamplor.sensor.temperature.dummy.DummyTemperatureSensor;
 
+import java.util.Collection;
+import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
+
 /**
  * Produces an appropriate temperature/humidity sensor. If that goes wrong, a dummy sensor is created.
  */
 public class TemperatureHumiditySensorFactory implements SensorFactory {
 
-  private int gpioPin;
+  private static final String GPIO_DATA_PIN = "sensorsamplor.sensor.temperature.gpio_data_pin";
 
-  public TemperatureHumiditySensorFactory(int gpioPin) {
-    this.gpioPin = gpioPin;
-  }
+  private int gpioPin;
 
   public Sensor createSensorFor(String platformIdentifier, SensorBus sensorBus) {
     try {
@@ -31,5 +34,16 @@ public class TemperatureHumiditySensorFactory implements SensorFactory {
     return Am2302Sensor.IDENTIFIER;
   }
 
+  @Override
+  public Collection<String> getConfigurationKeys() {
+    return newArrayList(GPIO_DATA_PIN);
+  }
+
+  @Override
+  public void setConfigurationValues(Map<String, String> configuration) {
+    if (configuration.containsKey(GPIO_DATA_PIN)) {
+      gpioPin = Integer.valueOf(configuration.get(GPIO_DATA_PIN));
+    }
+  }
 }
 

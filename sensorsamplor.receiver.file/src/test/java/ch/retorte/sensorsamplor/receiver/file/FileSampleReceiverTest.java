@@ -17,7 +17,7 @@ public class FileSampleReceiverTest {
 
   @Test
   public void shouldFormatDate() {
-    assertThat(sut.format(date(2014, 03, 31, 14, 45, 12)), is("2014-03-31"));
+    assertThat(sut.format(date(2014, 3, 31, 14, 45, 12)), is("2014-03-31"));
   }
 
   private DateTime date(int year, int month, int day, int hour, int minute, int second) {

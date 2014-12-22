@@ -4,8 +4,6 @@ import ch.retorte.sensorsamplor.sensor.Sample;
 import ch.retorte.sensorsamplor.sensor.Sensor;
 import ch.retorte.sensorsamplor.sensor.SensorException;
 import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySample;
-import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySensor;
-import ch.retorte.sensorsamplor.sensor.temperature.am2302.Am2302Sensor;
 
 import java.util.Random;
 

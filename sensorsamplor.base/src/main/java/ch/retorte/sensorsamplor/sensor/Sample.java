@@ -3,11 +3,17 @@ package ch.retorte.sensorsamplor.sensor;
 import org.joda.time.DateTime;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 /**
  * A single data item.
  */
 public interface Sample extends Serializable {
+
+  /**
+   * Provides a unique id for this sample.
+   */
+  UUID getId();
 
   /**
    * Returns the point in time this sample was taken.

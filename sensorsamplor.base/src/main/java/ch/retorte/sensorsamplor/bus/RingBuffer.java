@@ -3,6 +3,7 @@ package ch.retorte.sensorsamplor.bus;
 import com.hazelcast.core.*;
 
 import java.io.Serializable;
+import java.util.List;
 
 import static com.google.common.base.Joiner.on;
 
@@ -32,6 +33,10 @@ public class RingBuffer<T extends Serializable> implements Serializable {
 
   public T get() {
     return list.get(0);
+  }
+
+  public List<T> getBuffer() {
+    return list;
   }
 
   @Override

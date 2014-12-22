@@ -15,10 +15,6 @@ public class ConfigurationProperties {
 
   public static final String RECEIVER_PLATFORM_IDENTIFIER_PATTERN = "sensorsamplor.receiver_platform_identifier_pattern";
 
-  public static final String GPIO_DATA_PIN = "sensorsamplor.gpio_data_pin";
-
-  public static final String LOGGING_DIRECTORY = "sensorsamplor.logging_directory";
-
   public static final String MEASUREMENT_INTERVAL = "sensorsamplor.measurement_interval";
 
   public static final String BUS_NAME = "sensorsamplor.bus.name";
@@ -28,4 +24,7 @@ public class ConfigurationProperties {
   public static final String BUS_PASSWORD = "sensorsamplor.bus.password";
 
   public static final String INTERFACES = "sensorsamplor.bus.interfaces";
+
+  public static final String BUFFER_SIZE = "sensorsamplor.bus.buffer_size";
+
 }

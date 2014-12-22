@@ -1,7 +1,7 @@
 package ch.retorte.sensorsamplor;
 
 /**
- *
+ * Denotes identifiable classes.
  */
 public interface Identifiable {
 

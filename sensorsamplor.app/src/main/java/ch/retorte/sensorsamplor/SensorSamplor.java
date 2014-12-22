@@ -13,11 +13,15 @@ import ch.retorte.sensorsamplor.sensor.Sensor;
 import ch.retorte.sensorsamplor.sensor.SensorFactory;
 import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySensorFactory;
 import ch.retorte.sensorsamplor.configuration.ConfigurationLoader;
+import com.google.common.collect.Maps;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import static ch.retorte.sensorsamplor.configuration.ConfigurationProperties.*;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * Main program of the pi temp station. A data sampling software written in Java for a DHT22 temperature/humidity sensor on a Raspberry Pi.
@@ -53,7 +57,7 @@ public class SensorSamplor {
   }
 
   private void createSensorBus() {
-    sensorBus = new HazelcastSensorBus(getSensorPlatformIdentifier(), getBusName(), getUsername(), getPassword(), getNetworkInterfaces());
+    sensorBus = new HazelcastSensorBus(getSensorPlatformIdentifier(), getBusName(), getUsername(), getPassword(), getBufferSize(), getNetworkInterfaces());
   }
 
   private void loadSensors() {
@@ -67,7 +71,10 @@ public class SensorSamplor {
 
   private List<SensorFactory> discoverSensors() {
     List<SensorFactory> sensorFactories = newArrayList();
-    sensorFactories.add(new TemperatureHumiditySensorFactory(getGpioPin()));
+    sensorFactories.add(new TemperatureHumiditySensorFactory());
+
+    configure(sensorFactories);
+
     return sensorFactories;
   }
 
@@ -83,9 +90,31 @@ public class SensorSamplor {
   private List<ReceiverFactory> discoverReceivers() {
     List<ReceiverFactory> receiverFactories = newArrayList();
     receiverFactories.add(new ConsolePrintSampleReceiverFactory());
-    receiverFactories.add(new FileSampleReceiverFactory(getLoggingDirectory()));
+    receiverFactories.add(new FileSampleReceiverFactory());
+
+    configure(receiverFactories);
+
     return receiverFactories;
   }
+
+  private void configure(List<? extends Configurable> configurables) {
+    for (Configurable c : configurables) {
+      c.setConfigurationValues(getConfigurationItemsFor(c.getConfigurationKeys()));
+    }
+  }
+
+  private Map<String, String> getConfigurationItemsFor(Collection<String> keys) {
+    Map<String, String> result = newHashMap();
+    for (String key : keys) {
+      String value = configurationLoader.getStringProperty(key);
+      if (value != null) {
+        result.put(key, value);
+      }
+    }
+    return result;
+  }
+
+
 
   private SampleReceiverManager createReceiverManager() {
     return new SampleReceiverManager(sensorBus, receivers, getReceiverSensorPattern(), getReceiverPlatformPattern());
@@ -101,14 +130,6 @@ public class SensorSamplor {
 
   private int getMeasurementInterval() {
     return configurationLoader.getIntegerProperty(MEASUREMENT_INTERVAL);
-  }
-
-  private String getLoggingDirectory() {
-    return configurationLoader.getStringProperty(LOGGING_DIRECTORY);
-  }
-
-  private int getGpioPin() {
-    return configurationLoader.getIntegerProperty(GPIO_DATA_PIN);
   }
 
   private String getSensorPlatformIdentifier() {
@@ -147,4 +168,7 @@ public class SensorSamplor {
     return configurationLoader.getStringProperty(RECEIVER_PLATFORM_IDENTIFIER_PATTERN);
   }
 
+  private int getBufferSize() {
+    return configurationLoader.getIntegerProperty(BUFFER_SIZE);
+  }
 }

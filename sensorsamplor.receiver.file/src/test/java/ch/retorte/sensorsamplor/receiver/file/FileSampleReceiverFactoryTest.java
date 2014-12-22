@@ -1,28 +1,32 @@
 package ch.retorte.sensorsamplor.receiver.file;
 
-import ch.retorte.sensorsamplor.bus.SampleListener;
-import ch.retorte.sensorsamplor.bus.SensorBus;
 import ch.retorte.sensorsamplor.receiver.SampleReceiver;
-import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import static org.mockito.Mockito.mock;
+import java.util.Map;
+
+import static ch.retorte.sensorsamplor.receiver.file.FileSampleReceiverFactory.LOGGING_DIRECTORY;
+import static com.google.common.collect.Maps.newHashMap;
+import static org.junit.Assert.assertTrue;
 
 /**
- * Created by nw on 20.12.14.
+ * Unit test for file sample receiver factory.
  */
 public class FileSampleReceiverFactoryTest {
 
-  private String logFilePath = "some/path";
-  private FileSampleReceiverFactory sut = new FileSampleReceiverFactory(logFilePath);
+  private FileSampleReceiverFactory sut = new FileSampleReceiverFactory();
 
   @Test
   public void shouldProduceFileSampleReceiver() {
+    // given
+    Map<String, String> config = newHashMap();
+    config.put(LOGGING_DIRECTORY, "abc");
+    sut.setConfigurationValues(config);
+
     // when
     SampleReceiver receiver = sut.createReceiver();
 
     // then
-    Assert.assertTrue(receiver instanceof FileSampleReceiver);
+    assertTrue(receiver instanceof FileSampleReceiver);
   }
 }
