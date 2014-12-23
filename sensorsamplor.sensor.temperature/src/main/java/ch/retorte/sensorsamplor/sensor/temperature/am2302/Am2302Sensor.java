@@ -89,7 +89,7 @@ public class Am2302Sensor implements Sensor {
 
   private void sleepFor(long milliSeconds) {
     try {
-      Thread.sleep(200);
+      Thread.sleep(milliSeconds);
     } catch (InterruptedException e) {
       // nop
     }
