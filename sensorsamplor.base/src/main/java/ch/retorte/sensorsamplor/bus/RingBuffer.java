@@ -16,13 +16,13 @@ public class RingBuffer<T extends Serializable> implements Serializable {
   private ILock lock;
   private int bufferSize;
 
-  public RingBuffer(IList<T> list, ILock lock, int bufferSize) {
+  RingBuffer(IList<T> list, ILock lock, int bufferSize) {
     this.list = list;
     this.lock = lock;
     this.bufferSize = bufferSize;
   }
 
-  public void put(T t) {
+  void put(T t) {
     lock.lock();
     list.add(0, t);
     while (bufferSize < list.size()) {
@@ -31,11 +31,11 @@ public class RingBuffer<T extends Serializable> implements Serializable {
     lock.unlock();
   }
 
-  public T get() {
+  T get() {
     return list.get(0);
   }
 
-  public List<T> getBuffer() {
+  List<T> getBuffer() {
     return list;
   }
 
@@ -44,7 +44,7 @@ public class RingBuffer<T extends Serializable> implements Serializable {
     return "[" + on(",").join(list.toArray()) + "]";
   }
 
-  public void addItemListener(ItemListener<T> itemListener, boolean includeValue) {
+  void addItemListener(ItemListener<T> itemListener, boolean includeValue) {
     list.addItemListener(itemListener, includeValue);
   }
 }

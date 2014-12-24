@@ -3,6 +3,7 @@ package ch.retorte.sensorsamplor.sensor;
 import org.joda.time.DateTime;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -18,7 +19,7 @@ public interface Sample extends Serializable {
   /**
    * Returns the point in time this sample was taken.
    */
-  DateTime getDate();
+  DateTime getTimestamp();
 
   /**
    * Returns the string identifier of the platform where the sample was taken.
@@ -32,4 +33,9 @@ public interface Sample extends Serializable {
    * Returns an identifier denoting the kind/make of sensor, e.g. 'temperature', or 'eatenDonuts'.
    */
   String getSensorType();
+
+  /**
+   * This returns the data of the sensor sample in a key value fashion.
+   */
+  Map<String, Serializable> getData();
 }

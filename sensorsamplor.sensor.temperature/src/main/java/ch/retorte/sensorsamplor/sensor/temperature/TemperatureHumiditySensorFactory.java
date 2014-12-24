@@ -20,7 +20,7 @@ public class TemperatureHumiditySensorFactory implements SensorFactory {
 
   private int gpioPin;
 
-  public Sensor createSensorFor(String platformIdentifier, SensorBus sensorBus) {
+  public Sensor createSensorFor(String platformIdentifier) {
     try {
       return new Am2302Sensor(platformIdentifier, gpioPin);
     } catch (Throwable t) {

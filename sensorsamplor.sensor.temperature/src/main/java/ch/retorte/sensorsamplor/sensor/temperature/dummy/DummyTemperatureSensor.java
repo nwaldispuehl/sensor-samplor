@@ -3,9 +3,11 @@ package ch.retorte.sensorsamplor.sensor.temperature.dummy;
 import ch.retorte.sensorsamplor.sensor.Sample;
 import ch.retorte.sensorsamplor.sensor.Sensor;
 import ch.retorte.sensorsamplor.sensor.SensorException;
-import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySample;
+import ch.retorte.sensorsamplor.sensor.TransferSample;
 
 import java.util.Random;
+
+import static ch.retorte.sensorsamplor.sensor.temperature.am2302.Am2302Sensor.IDENTIFIER;
 
 /**
  * This dummy sensor does not rely on any physical sensor, but creates random data. It is suitable for test purposes.
@@ -25,7 +27,9 @@ public class DummyTemperatureSensor implements Sensor {
       throw new SensorException(platformIdentifier, "dummy", "Dummy sensor error.");
     }
 
-    return new TemperatureHumiditySample(platformIdentifier, randomTemperature(), randomHumidity());
+    return new TransferSample(platformIdentifier, IDENTIFIER)
+      .addItem("temperature", randomTemperature())
+      .addItem("humidity", randomHumidity());
   }
 
   private double randomTemperature() {

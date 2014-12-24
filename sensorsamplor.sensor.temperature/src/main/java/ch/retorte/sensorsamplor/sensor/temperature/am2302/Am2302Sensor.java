@@ -1,12 +1,16 @@
 package ch.retorte.sensorsamplor.sensor.temperature.am2302;
 
+import ch.retorte.sensorsamplor.sensor.Sample;
 import ch.retorte.sensorsamplor.sensor.Sensor;
 import ch.retorte.sensorsamplor.sensor.SensorException;
-import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySample;
+import ch.retorte.sensorsamplor.sensor.TransferSample;
 import com.sun.jna.Library;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import static ch.retorte.sensorsamplor.sensor.temperature.am2302.Am2302SensorStatusCode.*;
 
@@ -48,14 +52,16 @@ public class Am2302Sensor implements Sensor {
   }
 
   @Override
-  public TemperatureHumiditySample measure() throws SensorException {
+  public Sample measure() throws SensorException {
     measureWithRetries();
 
     if (measurementFailed()) {
       throw new SensorException(platformIdentifier, IDENTIFIER, messageOfStatus(returnCode));
     }
 
-    return new TemperatureHumiditySample(platformIdentifier, toDouble(temperature), toDouble(humidity));
+    return new TransferSample(platformIdentifier, IDENTIFIER)
+        .addItem("temperature", toOneDigitDouble(toDouble(temperature)))
+        .addItem("humidity", toOneDigitDouble(toDouble(humidity)));
   }
 
   /**
@@ -85,6 +91,10 @@ public class Am2302Sensor implements Sensor {
 
   private double toDouble(Pointer pointer) {
     return pointer.getFloat(0);
+  }
+
+  private double toOneDigitDouble(Double value) {
+    return new BigDecimal(value).setScale(1, RoundingMode.HALF_UP).doubleValue();
   }
 
   private void sleepFor(long milliSeconds) {

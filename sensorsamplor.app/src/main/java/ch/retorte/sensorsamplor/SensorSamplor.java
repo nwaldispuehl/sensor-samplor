@@ -11,6 +11,7 @@ import ch.retorte.sensorsamplor.receiver.console.ConsolePrintSampleReceiverFacto
 import ch.retorte.sensorsamplor.receiver.file.FileSampleReceiverFactory;
 import ch.retorte.sensorsamplor.sensor.Sensor;
 import ch.retorte.sensorsamplor.sensor.SensorFactory;
+import ch.retorte.sensorsamplor.sensor.processorload.ProcessorLoadSensorFactory;
 import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySensorFactory;
 import ch.retorte.sensorsamplor.configuration.ConfigurationLoader;
 import com.google.common.collect.Maps;
@@ -24,7 +25,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
 /**
- * Main program of the pi temp station. A data sampling software written in Java for a DHT22 temperature/humidity sensor on a Raspberry Pi.
+ * Main program of the sensor samplor, a generic data sampling software.
  */
 public class SensorSamplor {
 
@@ -64,7 +65,7 @@ public class SensorSamplor {
     List<String> activeSensor = getActiveSensors();
     for (SensorFactory f : discoverSensors()) {
       if (activeSensor.contains(f.getIdentifier())) {
-        sensors.add(f.createSensorFor(getSensorPlatformIdentifier(), sensorBus));
+        sensors.add(f.createSensorFor(getSensorPlatformIdentifier()));
       }
     }
   }
@@ -72,6 +73,7 @@ public class SensorSamplor {
   private List<SensorFactory> discoverSensors() {
     List<SensorFactory> sensorFactories = newArrayList();
     sensorFactories.add(new TemperatureHumiditySensorFactory());
+    sensorFactories.add(new ProcessorLoadSensorFactory());
 
     configure(sensorFactories);
 

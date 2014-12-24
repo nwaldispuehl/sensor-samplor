@@ -12,6 +12,6 @@ public interface SensorFactory extends Configurable, Identifiable {
   /**
    * Returns the sensor of this implementation.
    */
-  Sensor createSensorFor(String platformIdentifier, SensorBus sensorBus);
+  Sensor createSensorFor(String platformIdentifier);
 
 }

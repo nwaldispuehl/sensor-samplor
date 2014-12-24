@@ -5,4 +5,5 @@ version = '0.0.1'
 
 dependencies {
   compile 'com.hazelcast:hazelcast:3.3.3'
+  compile 'com.googlecode.json-simple:json-simple:1.1'
 }

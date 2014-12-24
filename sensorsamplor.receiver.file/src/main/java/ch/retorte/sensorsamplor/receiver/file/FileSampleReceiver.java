@@ -66,11 +66,11 @@ public class FileSampleReceiver implements SampleReceiver {
   }
 
   private void processSampleWithErrorHandling(Sample sample) {
-    processWithErrorHandling(LOG_FILE_PREFIX, sample.getSensorType(), sample.getDate(), sample.toString());
+    processWithErrorHandling(LOG_FILE_PREFIX, sample.getSensorType(), sample.getTimestamp(), sample.toString());
   }
 
   private void processExceptionWithErrorHandling(SensorException sensorException) {
-    processWithErrorHandling(ERROR_LOG_FILE_PREFIX, sensorException.getSensorType(), sensorException.getDate(), sensorException.toString());
+    processWithErrorHandling(ERROR_LOG_FILE_PREFIX, sensorException.getSensorType(), sensorException.getTimestamp(), sensorException.toString());
   }
 
   private void processWithErrorHandling(String prefix, String sensorType, DateTime date, String payload) {

@@ -16,6 +16,7 @@ dependencies {
   compile project(':sensorsamplor.receiver.console')
   compile project(':sensorsamplor.receiver.file')
   compile project(':sensorsamplor.sensor.temperature')
+  compile project(':sensorsamplor.sensor.processorload')
 
 }
 
