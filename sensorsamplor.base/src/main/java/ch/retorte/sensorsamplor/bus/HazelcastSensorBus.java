@@ -55,7 +55,7 @@ public class HazelcastSensorBus implements SensorBus {
   }
 
   @Override
-  public void send(Sample sample) {
+  public synchronized void send(Sample sample) {
     sampleBuffer.put(sample);
   }
 

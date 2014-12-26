@@ -14,7 +14,6 @@ import ch.retorte.sensorsamplor.sensor.SensorFactory;
 import ch.retorte.sensorsamplor.sensor.processorload.ProcessorLoadSensorFactory;
 import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySensorFactory;
 import ch.retorte.sensorsamplor.configuration.ConfigurationLoader;
-import com.google.common.collect.Maps;
 
 import java.util.Collection;
 import java.util.List;

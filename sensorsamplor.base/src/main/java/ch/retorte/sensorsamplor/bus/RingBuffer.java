@@ -24,11 +24,31 @@ public class RingBuffer<T extends Serializable> implements Serializable {
 
   void put(T t) {
     lock.lock();
-    list.add(0, t);
-    while (bufferSize < list.size()) {
-      list.remove(list.get(list.size() - 1));
+    try {
+      while (listIsTooLarge()) {
+        removeListTail();
+      }
+      addAtFront(t);
     }
-    lock.unlock();
+    catch (Throwable e) {
+      // TODO introduce logging.
+      e.printStackTrace();
+    }
+    finally {
+      lock.unlock();
+    }
+  }
+
+  private boolean listIsTooLarge() {
+    return bufferSize < list.size();
+  }
+
+  private void removeListTail() {
+    list.remove(list.size() - 1);
+  }
+
+  private void addAtFront(T t) {
+    list.add(0, t);
   }
 
   T get() {

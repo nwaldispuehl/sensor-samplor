@@ -1,6 +1,7 @@
 package ch.retorte.sensorsamplor.invoker;
 
 import ch.retorte.sensorsamplor.bus.SensorBus;
+import ch.retorte.sensorsamplor.sensor.ErrorSample;
 import ch.retorte.sensorsamplor.sensor.Sample;
 import ch.retorte.sensorsamplor.sensor.Sensor;
 import ch.retorte.sensorsamplor.sensor.SensorException;
@@ -46,7 +47,7 @@ public class SensorInvoker implements Runnable {
 
   @VisibleForTesting
   void processError(SensorException sensorException) {
-    sensorBus.send(sensorException);
+    sensorBus.send(new ErrorSample(sensorException.getPlatformIdentifier(), sensorException.getSensorType(), sensorException.getMessage()));
   }
 
   @VisibleForTesting

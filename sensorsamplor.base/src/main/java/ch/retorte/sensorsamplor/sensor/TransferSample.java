@@ -13,7 +13,7 @@ import static java.util.UUID.randomUUID;
 import static org.joda.time.DateTime.now;
 
 /**
- * Provides some formatting means.
+ * Sample implementation which is sent over the bus.
  */
 public class TransferSample implements Sample {
 

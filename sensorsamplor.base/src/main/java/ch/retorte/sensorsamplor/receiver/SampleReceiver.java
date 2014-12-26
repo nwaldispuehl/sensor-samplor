@@ -1,7 +1,7 @@
 package ch.retorte.sensorsamplor.receiver;
 
+import ch.retorte.sensorsamplor.sensor.ErrorSample;
 import ch.retorte.sensorsamplor.sensor.Sample;
-import ch.retorte.sensorsamplor.sensor.SensorException;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ public interface SampleReceiver {
    * Is called when a sensor exception was added to the buffer.
    *
    * @param sampleBuffer the complete buffer with all available samples.
-   * @param sensorException the exception which was recently added.
+   * @param errorSample the error which was recently added.
    */
-  void processError(List<Sample> sampleBuffer, SensorException sensorException);
+  void processError(List<Sample> sampleBuffer, ErrorSample errorSample);
 }

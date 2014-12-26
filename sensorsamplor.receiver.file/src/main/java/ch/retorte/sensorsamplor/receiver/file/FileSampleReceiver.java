@@ -1,8 +1,8 @@
 package ch.retorte.sensorsamplor.receiver.file;
 
 import ch.retorte.sensorsamplor.receiver.SampleReceiver;
+import ch.retorte.sensorsamplor.sensor.ErrorSample;
 import ch.retorte.sensorsamplor.sensor.Sample;
-import ch.retorte.sensorsamplor.sensor.SensorException;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
@@ -61,16 +61,16 @@ public class FileSampleReceiver implements SampleReceiver {
   }
 
   @Override
-  public void processError(List<Sample> sampleBuffer, SensorException sensorException) {
-    processExceptionWithErrorHandling(sensorException);
+  public void processError(List<Sample> sampleBuffer, ErrorSample errorSample) {
+    processExceptionWithErrorHandling(errorSample);
   }
 
   private void processSampleWithErrorHandling(Sample sample) {
     processWithErrorHandling(LOG_FILE_PREFIX, sample.getSensorType(), sample.getTimestamp(), sample.toString());
   }
 
-  private void processExceptionWithErrorHandling(SensorException sensorException) {
-    processWithErrorHandling(ERROR_LOG_FILE_PREFIX, sensorException.getSensorType(), sensorException.getTimestamp(), sensorException.toString());
+  private void processExceptionWithErrorHandling(ErrorSample errorSample) {
+    processWithErrorHandling(ERROR_LOG_FILE_PREFIX, errorSample.getSensorType(), errorSample.getTimestamp(), errorSample.toString());
   }
 
   private void processWithErrorHandling(String prefix, String sensorType, DateTime date, String payload) {

@@ -2,8 +2,8 @@ package ch.retorte.sensorsamplor.receiver;
 
 import ch.retorte.sensorsamplor.bus.SampleListener;
 import ch.retorte.sensorsamplor.bus.SensorBus;
+import ch.retorte.sensorsamplor.sensor.ErrorSample;
 import ch.retorte.sensorsamplor.sensor.Sample;
-import ch.retorte.sensorsamplor.sensor.SensorException;
 import com.google.common.annotations.VisibleForTesting;
 
 import java.util.List;
@@ -84,8 +84,8 @@ public class SampleReceiverManager {
 
     @VisibleForTesting
     void invokeSampleReceiver(Sample sample, SampleReceiver receiver) {
-      if (sample instanceof SensorException) {
-        receiver.processError(sensorBus.getBuffer(), (SensorException) sample);
+      if (sample instanceof ErrorSample) {
+        receiver.processError(sensorBus.getBuffer(), (ErrorSample) sample);
       }
       else {
         receiver.processSample(sensorBus.getBuffer(), sample);
