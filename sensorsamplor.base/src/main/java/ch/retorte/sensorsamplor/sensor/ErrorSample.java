@@ -5,8 +5,10 @@ package ch.retorte.sensorsamplor.sensor;
  */
 public class ErrorSample extends TransferSample {
 
+  private static final String ERROR_MESSAGE_KEY = "message";
+
   public ErrorSample(String platformIdentifier, String sensorType, String message) {
     super(platformIdentifier, sensorType);
-    addItem("message", message);
+    addItem(ERROR_MESSAGE_KEY, message);
   }
 }

@@ -1,9 +1,11 @@
 package ch.retorte.sensorsamplor.bus;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.hazelcast.core.*;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
 
 import static com.google.common.base.Joiner.on;
 
@@ -13,10 +15,10 @@ import static com.google.common.base.Joiner.on;
 public class RingBuffer<T extends Serializable> implements Serializable {
 
   private IList<T> list;
-  private ILock lock;
+  private Lock lock;
   private int bufferSize;
 
-  RingBuffer(IList<T> list, ILock lock, int bufferSize) {
+  RingBuffer(IList<T> list, Lock lock, int bufferSize) {
     this.list = list;
     this.lock = lock;
     this.bufferSize = bufferSize;
@@ -40,15 +42,30 @@ public class RingBuffer<T extends Serializable> implements Serializable {
   }
 
   private boolean listIsTooLarge() {
-    return bufferSize < list.size();
+    return !hasSpaceLeft(list, bufferSize);
+  }
+
+  @VisibleForTesting
+  boolean hasSpaceLeft(List<T> l, int maximumSize) {
+    return l.size() < maximumSize;
   }
 
   private void removeListTail() {
-    list.remove(list.size() - 1);
+    removeListTailOf(list);
+  }
+
+  @VisibleForTesting
+  void removeListTailOf(List<T> l) {
+    l.remove(l.size() - 1);
   }
 
   private void addAtFront(T t) {
-    list.add(0, t);
+    addAtFrontIn(list, t);
+  }
+
+  @VisibleForTesting
+  void addAtFrontIn(List<T> l, T t) {
+    l.add(0, t);
   }
 
   T get() {
