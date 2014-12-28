@@ -84,9 +84,9 @@ These logs then look as follows. The pattern is ```TIMESTAMP -- NODE IDENTIFIER 
     $ cat /var/log/sensor-samplor/sensor.log.temperature.2014-12-27
 
     ...
-    2014-12-27:18:06:40 +0100 -- workshop_temperature_logger -- temperature -- d38727db-cb75-4f10-b6cc-c6b12e9e7aea -- {"humidity":55.0,"temperature":20.2}
-    2014-12-27:18:07:40 +0100 -- workshop_temperature_logger -- temperature -- 988b4031-30de-4697-aa6e-c4bf26fcf9f7 -- {"humidity":55.0,"temperature":20.2}
-    2014-12-27:18:08:40 +0100 -- workshop_temperature_logger -- temperature -- a0c0f0c4-07ab-4fe7-b719-5186f84763f9 -- {"humidity":55.3,"temperature":20.3}
+    2014-12-27:18:06:00 +0100 -- workshop_temperature_logger -- temperature -- d38727db-cb75-4f10-b6cc-c6b12e9e7aea -- {"humidity":55.0,"temperature":20.2}
+    2014-12-27:18:07:00 +0100 -- workshop_temperature_logger -- temperature -- 988b4031-30de-4697-aa6e-c4bf26fcf9f7 -- {"humidity":55.0,"temperature":20.2}
+    2014-12-27:18:08:00 +0100 -- workshop_temperature_logger -- temperature -- a0c0f0c4-07ab-4fe7-b719-5186f84763f9 -- {"humidity":55.3,"temperature":20.3}
     ...
 
 These can now be processed.
@@ -150,12 +150,12 @@ Note that:
 On the personal computer, when the software is running on all nodes, the following output is written to the console:
 
     ...
-    2014-12-27:18:45:22 +0100 -- node_1 -- temperature -- 9cc4d10d-d856-40ac-97d5-87d91b698163 -- {"humidity":25.2,"temperature":24.0}
-    2014-12-27:18:45:35 +0100 -- node_2 -- temperature -- 5023d8ef-369b-49d9-8cde-f2980ca1aae8 -- {"humidity":42.6,"temperature":21.1}
-    2014-12-27:18:46:22 +0100 -- node_1 -- temperature -- d90dc5ce-2e27-44f2-a575-9f7323fb5dd4 -- {"humidity":25.6,"temperature":24.2}
-    2014-12-27:18:46:35 +0100 -- node_2 -- temperature -- 81cb7f69-200d-4fcb-9943-d0db578a0aa6 -- {"humidity":42.6,"temperature":21.1}
-    2014-12-27:18:47:22 +0100 -- node_1 -- temperature -- 0a41690a-9180-476a-b3c4-934a6562c89f -- {"humidity":25.7,"temperature":24.1}
-    2014-12-27:18:47:35 +0100 -- node_2 -- temperature -- 1c13d32c-f092-4a2c-9007-dd733066fe0e -- {"humidity":42.6,"temperature":21.2}
+    2014-12-27:18:45:00 +0100 -- node_1 -- temperature -- 9cc4d10d-d856-40ac-97d5-87d91b698163 -- {"humidity":25.2,"temperature":24.0}
+    2014-12-27:18:45:00 +0100 -- node_2 -- temperature -- 5023d8ef-369b-49d9-8cde-f2980ca1aae8 -- {"humidity":42.6,"temperature":21.1}
+    2014-12-27:18:46:00 +0100 -- node_1 -- temperature -- d90dc5ce-2e27-44f2-a575-9f7323fb5dd4 -- {"humidity":25.6,"temperature":24.2}
+    2014-12-27:18:46:00 +0100 -- node_2 -- temperature -- 81cb7f69-200d-4fcb-9943-d0db578a0aa6 -- {"humidity":42.6,"temperature":21.1}
+    2014-12-27:18:47:00 +0100 -- node_1 -- temperature -- 0a41690a-9180-476a-b3c4-934a6562c89f -- {"humidity":25.7,"temperature":24.1}
+    2014-12-27:18:47:00 +0100 -- node_2 -- temperature -- 1c13d32c-f092-4a2c-9007-dd733066fe0e -- {"humidity":42.6,"temperature":21.2}
     ...
 
 
