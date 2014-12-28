@@ -1,29 +1,63 @@
 package ch.retorte.sensorsamplor.invoker;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import ch.retorte.sensorsamplor.bus.SensorBus;
+import ch.retorte.sensorsamplor.sensor.Sensor;
+import org.quartz.CronTrigger;
+import org.quartz.JobDetail;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.impl.StdSchedulerFactory;
+
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.collect.Maps.newHashMap;
+import static org.quartz.CronScheduleBuilder.cronSchedule;
+import static org.quartz.JobBuilder.newJob;
+import static org.quartz.TriggerBuilder.newTrigger;
+import static org.quartz.core.jmx.JobDataMapSupport.newJobDataMap;
 
 /**
  * Schedules the sensor invoker.
  */
 public class SensorInvokerManager {
 
-  private static final int INITIAL_DELAY_SECONDS = 1;
+  public static final String JOB_DATA_SENSORS_IDENTIFIER = "sensors";
+  public static final String JOB_DATA_SENSOR_BUS_IDENTIFIER = "sensorBus";
 
-  private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+  private Scheduler scheduler;
+  private JobDetail job;
 
-  private final SensorInvoker invoker;
-
-  public SensorInvokerManager(SensorInvoker invoker) {
-    this.invoker = invoker;
+  public SensorInvokerManager(SensorBus sensorBus, List<Sensor> sensors) throws SchedulerException {
+    createScheduler();
+    createJobWith(sensorBus, sensors);
   }
 
-  public void scheduleIntervals(int seconds) {
-    scheduler.scheduleAtFixedRate(invoker, INITIAL_DELAY_SECONDS, seconds, TimeUnit.SECONDS);
+  private void createScheduler() throws SchedulerException {
+    scheduler = new StdSchedulerFactory().getScheduler();
+    scheduler.start();
   }
 
-  public void stop() {
+  private void createJobWith(SensorBus sensorBus, List<Sensor> sensors) {
+    job = newJob(SensorInvoker.class).usingJobData(newJobDataMap(mapWith(sensorBus, sensors))).build();
+  }
+
+  private Map<String, Object> mapWith(SensorBus sensorBus, List<Sensor> sensors) {
+    Map<String, Object> map = newHashMap();
+    map.put(JOB_DATA_SENSOR_BUS_IDENTIFIER, sensorBus);
+    map.put(JOB_DATA_SENSORS_IDENTIFIER, sensors);
+    return map;
+  }
+
+  public void scheduleIntervals(String cronExpression) throws SchedulerException {
+    scheduler.scheduleJob(job, triggerWith(cronExpression));
+  }
+
+  private CronTrigger triggerWith(String cronExpression) {
+    return newTrigger().startNow().withSchedule(cronSchedule(cronExpression)).build();
+  }
+
+  public void stop() throws SchedulerException {
     scheduler.shutdown();
   }
 }

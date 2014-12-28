@@ -26,7 +26,7 @@ This software provides a distributed communication bus based on [Hazelcast](http
 Every started instance of the **SensorSamplor** is considered a single *Node* in a cluster. Such node is configured to use a number of sensors and/or receivers.
 Usually in a sensor network, there are sensing nodes which only perform sensor measurements and few nodes which do not sense anything but only receive, that is, aggregate and store the measurements sent over the bus.
 
-The default use case is to measure temperature with a DHT22/AM2302 temperature/humidity sensor on a [Raspberry Pi](http://www.raspberrypi.org/). The software can be run on a wide variety of platforms using any thinkable sensor however. The platform needs to support [Java](https://www.java.com/) 7.
+The default use case is to measure temperature with a DHT22/AM2302 temperature/humidity sensor on a [Raspberry Pi](http://www.raspberrypi.org/). The software can be run on a wide variety of platforms using any thinkable sensor however. The platform needs to support [Java 7](https://www.java.com/).
 
 <a name='basic_use_cases' />
 ## Basic use cases
@@ -50,9 +50,9 @@ We only put the ```temperature``` sensor into the list of active sensors. This i
 
     sensorsamplor.active_sensors = temperature
 
-Then we set the measurement interval in seconds; one sample every minute:
+Then we set the measurement timing with a [cron expression](http://www.quartz-scheduler.org/documentation/quartz-2.x/tutorials/crontrigger); one sample every minute:
 
-    sensorsamplor.measurement_interval = 60
+    sensorsamplor.measurement_cron_expression = 0 * * * * ?
 
 As receiver we set the ```logfile``` plugin:
 
@@ -94,7 +94,7 @@ These can now be processed.
 <a name='sensor_network_usecase' />
 ### Use case 2: A small sensor network
 
-To have multiple nodes collecting sensor readings (also temperature in this case) we configure two Raspberry Pi computers as sensor nodes and a personal computer as some sort of sensor live ticker. We again assume the software has been installed on all three systems and temperature sensors as well as drivers were set up on the two Raspberry Pi computers.
+To have multiple nodes collecting sensor readings (also temperature in this case) we configure two Raspberry Pi computers as sensor nodes and a personal computer as some sort of sensor live ticker. We again assume the software has been installed on all three systems and temperature sensors as well as drivers were set up on the two Raspberry Pi computers. Furthermore all nodes are connected to the same computer network.
 
 #### Configuration
 
@@ -111,7 +111,7 @@ Note that:
     sensorsamplor.sensor_platform_identifier = node_1
     sensorsamplor.active_sensors = temperature
     sensorsamplor.active_receivers =
-    sensorsamplor.measurement_interval = 60
+    sensorsamplor.measurement_cron_expression = 0 * * * * ?
 
     sensorsamplor.bus.name = SensorSamplorBus
     sensorsamplor.bus.username = myUsername
@@ -125,7 +125,7 @@ Note that:
     sensorsamplor.sensor_platform_identifier = node_2
     sensorsamplor.active_sensors = temperature
     sensorsamplor.active_receivers =
-    sensorsamplor.measurement_interval = 60
+    sensorsamplor.measurement_cron_expression = 0 * * * * ?
 
     sensorsamplor.bus.name = SensorSamplorBus
     sensorsamplor.bus.username = myUsername

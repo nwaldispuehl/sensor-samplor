@@ -3,7 +3,6 @@ package ch.retorte.sensorsamplor;
 import ch.retorte.sensorsamplor.bus.HazelcastSensorBus;
 import ch.retorte.sensorsamplor.bus.SensorBus;
 import ch.retorte.sensorsamplor.invoker.SensorInvokerManager;
-import ch.retorte.sensorsamplor.invoker.SensorInvoker;
 import ch.retorte.sensorsamplor.receiver.ReceiverFactory;
 import ch.retorte.sensorsamplor.receiver.SampleReceiver;
 import ch.retorte.sensorsamplor.receiver.SampleReceiverManager;
@@ -14,6 +13,7 @@ import ch.retorte.sensorsamplor.sensor.SensorFactory;
 import ch.retorte.sensorsamplor.sensor.processorload.ProcessorLoadSensorFactory;
 import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySensorFactory;
 import ch.retorte.sensorsamplor.configuration.ConfigurationLoader;
+import org.quartz.SchedulerException;
 
 import java.util.Collection;
 import java.util.List;
@@ -43,7 +43,14 @@ public class SensorSamplor {
     loadReceivers();
     createReceiverManager();
     loadSensors();
-    createSensorManager().scheduleIntervals(getMeasurementInterval());
+
+    try {
+      createSensorManager().scheduleIntervals(getMeasurementCronExpression());
+    } catch (SchedulerException e) {
+      // TODO Introduce logging
+      e.printStackTrace();
+      System.exit(1);
+    }
   }
 
   private void loadConfiguration() {
@@ -115,22 +122,16 @@ public class SensorSamplor {
     return result;
   }
 
-
-
   private SampleReceiverManager createReceiverManager() {
     return new SampleReceiverManager(sensorBus, receivers, getReceiverSensorPattern(), getReceiverPlatformPattern());
   }
 
-  private SensorInvokerManager createSensorManager() {
-    return new SensorInvokerManager(createSensorInvoker());
+  private SensorInvokerManager createSensorManager() throws SchedulerException {
+    return new SensorInvokerManager(sensorBus, sensors);
   }
 
-  private SensorInvoker createSensorInvoker() {
-    return new SensorInvoker(sensorBus, sensors);
-  }
-
-  private int getMeasurementInterval() {
-    return configurationLoader.getIntegerProperty(MEASUREMENT_INTERVAL);
+  private String getMeasurementCronExpression() {
+    return configurationLoader.getStringProperty(MEASUREMENT_CRON_EXPRESSION);
   }
 
   private String getSensorPlatformIdentifier() {

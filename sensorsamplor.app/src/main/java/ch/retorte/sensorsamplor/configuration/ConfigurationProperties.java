@@ -15,7 +15,7 @@ public class ConfigurationProperties {
 
   public static final String RECEIVER_PLATFORM_IDENTIFIER_PATTERN = "sensorsamplor.receiver_platform_identifier_pattern";
 
-  public static final String MEASUREMENT_INTERVAL = "sensorsamplor.measurement_interval";
+  public static final String MEASUREMENT_CRON_EXPRESSION = "sensorsamplor.measurement_cron_expression";
 
   public static final String BUS_NAME = "sensorsamplor.bus.name";
 
