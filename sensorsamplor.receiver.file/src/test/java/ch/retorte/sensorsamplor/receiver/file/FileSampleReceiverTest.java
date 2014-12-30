@@ -13,7 +13,7 @@ public class FileSampleReceiverTest {
 
   private static final String LOG_FILE_PATH = "/tmp/";
 
-  FileSampleReceiver sut = new FileSampleReceiver(LOG_FILE_PATH);
+  private final FileSampleReceiver sut = new FileSampleReceiver(LOG_FILE_PATH);
 
   @Test
   public void shouldFormatDate() {

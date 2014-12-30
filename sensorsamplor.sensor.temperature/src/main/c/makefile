@@ -7,3 +7,6 @@ clean:
 
 install:
 	sudo cp libPiDht.so /usr/lib/
+
+uninstall:
+	sudo rm /usr/lib/libPiDht.so

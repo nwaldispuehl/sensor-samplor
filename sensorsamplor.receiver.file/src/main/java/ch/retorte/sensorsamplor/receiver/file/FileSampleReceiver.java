@@ -9,6 +9,8 @@ import com.google.common.io.Files;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.List;
@@ -21,12 +23,13 @@ import static java.io.File.separator;
 public class FileSampleReceiver implements SampleReceiver {
 
   public static final String IDENTIFIER = "logfile";
-
   public static final String LOG_FILE_PREFIX = "sensor.log";
   public static final String ERROR_LOG_FILE_PREFIX = "error.log";
-  private static final String PART_DELIMITER = ".";
 
+  private static final String PART_DELIMITER = ".";
   private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+
+  private final Logger log = LoggerFactory.getLogger(FileSampleReceiver.class);
 
   private final DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
 
@@ -42,6 +45,7 @@ public class FileSampleReceiver implements SampleReceiver {
     if (!f.exists()) {
       boolean pathCreated = f.mkdirs();
       if (!pathCreated) {
+        log.error("Was not able to create log file path: {}.", logFilePath);
         throw new RuntimeException("Was not able to create log file path: " + logFilePath);
       }
     }
@@ -79,9 +83,11 @@ public class FileSampleReceiver implements SampleReceiver {
       appendSampleToFile(payload, logFile);
     }
     catch (FileNotFoundException fileNotFoundException) {
+      log.error("No log file found for writing: {}.", fileNotFoundException.getMessage());
       throw new RuntimeException("No log file found for writing: " + fileNotFoundException.getMessage());
     }
     catch (IOException ioException) {
+      log.error("Was not able to create log file: {}.", ioException.getMessage());
       throw new RuntimeException("Was not able to create log file: " + ioException.getMessage());
     }
   }
@@ -91,6 +97,7 @@ public class FileSampleReceiver implements SampleReceiver {
     if (!logFile.exists()) {
       boolean fileCreated = logFile.createNewFile();
       if (!fileCreated) {
+        log.error("Was not able to create log file: {}.", logFilePath);
         throw new RuntimeException("Was not able to create log file: " + logFile.getAbsolutePath());
       }
     }

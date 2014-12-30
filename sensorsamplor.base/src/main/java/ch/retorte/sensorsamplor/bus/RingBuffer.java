@@ -2,6 +2,8 @@ package ch.retorte.sensorsamplor.bus;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.hazelcast.core.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.List;
@@ -14,14 +16,18 @@ import static com.google.common.base.Joiner.on;
  */
 public class RingBuffer<T extends Serializable> implements Serializable {
 
-  private IList<T> list;
-  private Lock lock;
-  private int bufferSize;
+  private final Logger log = LoggerFactory.getLogger(RingBuffer.class);
+
+  private final IList<T> list;
+  private final Lock lock;
+  private final int bufferSize;
 
   RingBuffer(IList<T> list, Lock lock, int bufferSize) {
     this.list = list;
     this.lock = lock;
     this.bufferSize = bufferSize;
+
+    log.debug("Creating ring buffer with buffer size: {}.", bufferSize);
   }
 
   void put(T t) {
@@ -33,12 +39,12 @@ public class RingBuffer<T extends Serializable> implements Serializable {
       addAtFront(t);
     }
     catch (Throwable e) {
-      // TODO introduce logging.
-      e.printStackTrace();
+      log.error("Problems while trying to add item to buffer: {}.", e.getMessage(), e);
     }
     finally {
       lock.unlock();
     }
+    log.debug("Added new buffer item: {}.", t);
   }
 
   private boolean listIsTooLarge() {
@@ -51,6 +57,7 @@ public class RingBuffer<T extends Serializable> implements Serializable {
   }
 
   private void removeListTail() {
+    log.debug("List too large ({} items), removed buffer tail.", list.size());
     removeListTailOf(list);
   }
 
@@ -81,7 +88,7 @@ public class RingBuffer<T extends Serializable> implements Serializable {
     return "[" + on(",").join(list.toArray()) + "]";
   }
 
-  void addItemListener(ItemListener<T> itemListener, boolean includeValue) {
-    list.addItemListener(itemListener, includeValue);
+  void addItemListener(ItemListener<T> itemListener) {
+    list.addItemListener(itemListener, true);
   }
 }

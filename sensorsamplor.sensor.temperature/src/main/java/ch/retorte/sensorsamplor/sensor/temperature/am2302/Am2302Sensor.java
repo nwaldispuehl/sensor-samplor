@@ -8,6 +8,8 @@ import com.sun.jna.Library;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -26,7 +28,9 @@ public class Am2302Sensor implements Sensor {
   private static final int FLOAT_SIZE = 16;
   private static final int RETRIES_IN_ERROR_CASE = 4;
 
-  private String platformIdentifier;
+  private final Logger log = LoggerFactory.getLogger(Am2302Sensor.class);
+
+  private final String platformIdentifier;
   private final int pin;
 
   private final Pointer humidity = new Memory(FLOAT_SIZE);
@@ -49,6 +53,8 @@ public class Am2302Sensor implements Sensor {
     this.platformIdentifier = platformIdentifier;
     this.pin = pin;
     this.sensorLibrary = loadLibrary();
+
+    log.info("Created AM2302 sensor on data pin: {}.", pin);
   }
 
   @Override
@@ -56,9 +62,11 @@ public class Am2302Sensor implements Sensor {
     measureWithRetries();
 
     if (measurementFailed()) {
+      log.warn("Temperature measurement failed. Reason according to sensor: {}.", messageOfStatus(returnCode));
       throw new SensorException(platformIdentifier, IDENTIFIER, messageOfStatus(returnCode));
     }
 
+    log.debug("Performed measurement with values: {}, {}.", toDouble(temperature), toDouble(humidity));
     return new TransferSample(platformIdentifier, IDENTIFIER)
         .addItem("temperature", toOneDigitDouble(toDouble(temperature)))
         .addItem("humidity", toOneDigitDouble(toDouble(humidity)));

@@ -5,6 +5,8 @@ import ch.retorte.sensorsamplor.bus.SensorBus;
 import ch.retorte.sensorsamplor.sensor.ErrorSample;
 import ch.retorte.sensorsamplor.sensor.Sample;
 import com.google.common.annotations.VisibleForTesting;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -14,8 +16,10 @@ import java.util.regex.Pattern;
  */
 public class SampleReceiverManager {
 
-  private List<SampleReceiver> receivers;
-  private SensorBus sensorBus;
+  private final Logger log = LoggerFactory.getLogger(SampleReceiverManager.class);
+
+  private final List<SampleReceiver> receivers;
+  private final SensorBus sensorBus;
   private Pattern sensorPattern;
   private Pattern platformPattern;
 
@@ -25,6 +29,8 @@ public class SampleReceiverManager {
 
     compilePattern(sensorPatternString, platformPatternString);
     registerSampleListener();
+
+    log.info("Created sample receiver manager with sensor pattern: {} and platform pattern: {}.", sensorPatternString, platformPatternString);
   }
 
   private void compilePattern(String sensorPatternString, String platformPatternString) {
@@ -69,8 +75,8 @@ public class SampleReceiverManager {
 
   private class ReceiverRunner implements Runnable {
 
-    private Sample sample;
-    private SampleReceiver receiver;
+    private final Sample sample;
+    private final SampleReceiver receiver;
 
     public ReceiverRunner(Sample sample, SampleReceiver receiver) {
       this.sample = sample;
@@ -84,6 +90,8 @@ public class SampleReceiverManager {
 
     @VisibleForTesting
     void invokeSampleReceiver(Sample sample, SampleReceiver receiver) {
+      log.debug("Invoking sample receiver: {} for sample: {}.", receiver.getClass().getSimpleName(), sample.getId());
+
       if (sample instanceof ErrorSample) {
         receiver.processError(sensorBus.getBuffer(), (ErrorSample) sample);
       }

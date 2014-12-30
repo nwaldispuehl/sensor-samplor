@@ -7,6 +7,8 @@ import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -22,8 +24,12 @@ import static org.quartz.core.jmx.JobDataMapSupport.newJobDataMap;
  */
 public class SensorInvokerManager {
 
+  private static final String QUARTZ_CONFIGURATION_FILE = "quartz-scheduler.properties";
+
   public static final String JOB_DATA_SENSORS_IDENTIFIER = "sensors";
   public static final String JOB_DATA_SENSOR_BUS_IDENTIFIER = "sensorBus";
+
+  private final Logger log = LoggerFactory.getLogger(SensorInvokerManager.class);
 
   private Scheduler scheduler;
   private JobDetail job;
@@ -34,8 +40,10 @@ public class SensorInvokerManager {
   }
 
   private void createScheduler() throws SchedulerException {
-    scheduler = new StdSchedulerFactory().getScheduler();
+    scheduler = new StdSchedulerFactory(QUARTZ_CONFIGURATION_FILE).getScheduler();
+    log.info("Created Quartz scheduler with configuration file: {}.", QUARTZ_CONFIGURATION_FILE);
     scheduler.start();
+    log.info("Started Quartz scheduler.");
   }
 
   private void createJobWith(SensorBus sensorBus, List<Sensor> sensors) {
@@ -51,6 +59,7 @@ public class SensorInvokerManager {
 
   public void scheduleIntervals(String cronExpression) throws SchedulerException {
     scheduler.scheduleJob(job, triggerWith(cronExpression));
+    log.info("Scheduled Quartz job with cron expression: {}.", cronExpression);
   }
 
   private CronTrigger triggerWith(String cronExpression) {

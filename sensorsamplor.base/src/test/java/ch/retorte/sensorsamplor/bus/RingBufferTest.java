@@ -17,9 +17,9 @@ import static org.mockito.Mockito.when;
  */
 public class RingBufferTest {
 
-  IList<Serializable> list = mock(IList.class);
-  ILock lock = mock(ILock.class);
-  RingBuffer<Serializable> sut = new RingBuffer<>(list, lock, 4);
+  private final IList<Serializable> list = mock(IList.class);
+  private final ILock lock = mock(ILock.class);
+  private final RingBuffer<Serializable> sut = new RingBuffer<>(list, lock, 4);
 
   @Test
   public void shouldPutNewItemsAtFront() {

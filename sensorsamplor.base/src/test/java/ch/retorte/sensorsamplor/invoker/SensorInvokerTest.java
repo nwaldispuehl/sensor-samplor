@@ -7,7 +7,8 @@ import ch.retorte.sensorsamplor.sensor.SensorException;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.ArrayList;
+
 import static org.mockito.Mockito.*;
 
 /**
@@ -15,14 +16,15 @@ import static org.mockito.Mockito.*;
  */
 public class SensorInvokerTest {
 
-  Sample sample = mock(Sample.class);
-  Sensor sensor = mock(Sensor.class);
-  SensorInvoker sut = spy(new SensorInvoker(mock(SensorBus.class), newArrayList(sensor)));
-  SensorInvoker.SensorRunner threadUnderTest = sut.createRunnerWith(sensor);
+  private final Sample sample = mock(Sample.class);
+  private final Sensor sensor = mock(Sensor.class);
+  private final SensorInvoker sut = spy(new SensorInvoker());
+  private final SensorInvoker.SensorRunner threadUnderTest = sut.createRunnerWith(sensor);
 
   @Before
   public void setup() {
-
+    when(sut.getSensorBus()).thenReturn(mock(SensorBus.class));
+    when(sut.getSensors()).thenReturn(mock(ArrayList.class));
   }
 
   @Test

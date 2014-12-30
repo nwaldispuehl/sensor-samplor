@@ -16,10 +16,9 @@ import static org.mockito.Mockito.mock;
  */
 public class SampleReceiverManagerTest {
 
-  SensorBus sensorBus = mock(SensorBus.class);
-  List<SampleReceiver> receivers = mock(ArrayList.class);
-  SampleReceiverManager sut = new SampleReceiverManager(sensorBus, receivers, "", "");
-
+  private final SensorBus sensorBus = mock(SensorBus.class);
+  private final List<SampleReceiver> receivers = mock(ArrayList.class);
+  private final SampleReceiverManager sut = new SampleReceiverManager(sensorBus, receivers, "", "");
 
   @Test
   public void shouldMatchPattern() {

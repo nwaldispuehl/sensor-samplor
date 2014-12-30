@@ -4,6 +4,8 @@ import ch.retorte.sensorsamplor.sensor.Sample;
 import ch.retorte.sensorsamplor.sensor.Sensor;
 import ch.retorte.sensorsamplor.sensor.SensorException;
 import ch.retorte.sensorsamplor.sensor.TransferSample;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Random;
 
@@ -14,8 +16,10 @@ import static ch.retorte.sensorsamplor.sensor.temperature.am2302.Am2302Sensor.ID
  */
 public class DummyTemperatureSensor implements Sensor {
 
+  private final Logger log = LoggerFactory.getLogger(DummyTemperatureSensor.class);
+
   private final Random random = new Random();
-  private String platformIdentifier;
+  private final String platformIdentifier;
 
   public DummyTemperatureSensor(String platformIdentifier) {
     this.platformIdentifier = platformIdentifier;
@@ -23,6 +27,8 @@ public class DummyTemperatureSensor implements Sensor {
 
   @Override
   public Sample measure() throws SensorException {
+    log.debug("Produced dummy measurement.");
+
     if (random.nextDouble() < 0.1) {
       throw new SensorException(platformIdentifier, "dummy", "Dummy sensor error.");
     }

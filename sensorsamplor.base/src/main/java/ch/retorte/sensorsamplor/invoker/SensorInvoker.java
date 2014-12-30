@@ -10,6 +10,8 @@ import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -20,6 +22,8 @@ import static ch.retorte.sensorsamplor.invoker.SensorInvokerManager.JOB_DATA_SEN
  * Invokes measurements of sensors.
  */
 public class SensorInvoker implements Job {
+
+  private final Logger log = LoggerFactory.getLogger(SensorInvoker.class);
 
   private SensorBus sensorBus;
   private List<Sensor> sensors;
@@ -33,8 +37,8 @@ public class SensorInvoker implements Job {
     }
     catch (Exception e) {
       /* The scheduler stores exceptions instead of instantly reacting to them, so we need to do a little work here. */
+      log.error("Problem with sensor invocation: {}.", e.getMessage());
       throw new JobExecutionException(e);
-      // TODO: Logging
     }
   }
 
@@ -56,19 +60,20 @@ public class SensorInvoker implements Job {
   }
 
   void invokeSensors() {
-    for (Sensor sensor : sensors) {
+    for (Sensor sensor : getSensors()) {
       new Thread(createRunnerWith(sensor)).start();
     }
   }
 
   @VisibleForTesting
   void process(Sample sample) {
-    sensorBus.send(sample);
+    getSensorBus().send(sample);
   }
 
   @VisibleForTesting
   void processError(SensorException sensorException) {
-    sensorBus.send(new ErrorSample(sensorException.getPlatformIdentifier(), sensorException.getSensorType(), sensorException.getMessage()));
+    log.warn("Sensor produced exception: {}.", sensorException.getMessage());
+    getSensorBus().send(new ErrorSample(sensorException.getPlatformIdentifier(), sensorException.getSensorType(), sensorException.getMessage()));
   }
 
   @VisibleForTesting
@@ -77,9 +82,19 @@ public class SensorInvoker implements Job {
   }
 
   @VisibleForTesting
+  SensorBus getSensorBus() {
+    return sensorBus;
+  }
+
+  @VisibleForTesting
+  List<Sensor> getSensors() {
+    return sensors;
+  }
+
+  @VisibleForTesting
   class SensorRunner implements Runnable {
 
-    private Sensor sensor;
+    private final Sensor sensor;
 
     public SensorRunner(Sensor sensor) {
       this.sensor = sensor;

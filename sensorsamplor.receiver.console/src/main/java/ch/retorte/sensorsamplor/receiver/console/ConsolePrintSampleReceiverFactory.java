@@ -2,7 +2,6 @@ package ch.retorte.sensorsamplor.receiver.console;
 
 import ch.retorte.sensorsamplor.receiver.ReceiverFactory;
 import ch.retorte.sensorsamplor.receiver.SampleReceiver;
-import com.google.common.collect.Lists;
 
 import java.util.Collection;
 import java.util.Map;

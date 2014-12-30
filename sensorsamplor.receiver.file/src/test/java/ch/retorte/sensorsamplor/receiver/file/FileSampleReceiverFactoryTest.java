@@ -14,7 +14,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class FileSampleReceiverFactoryTest {
 
-  private FileSampleReceiverFactory sut = new FileSampleReceiverFactory();
+  private final FileSampleReceiverFactory sut = new FileSampleReceiverFactory();
 
   @Test
   public void shouldProduceFileSampleReceiver() {

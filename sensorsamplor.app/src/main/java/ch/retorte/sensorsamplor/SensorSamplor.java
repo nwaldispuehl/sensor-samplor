@@ -14,6 +14,8 @@ import ch.retorte.sensorsamplor.sensor.processorload.ProcessorLoadSensorFactory;
 import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySensorFactory;
 import ch.retorte.sensorsamplor.configuration.ConfigurationLoader;
 import org.quartz.SchedulerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
@@ -28,10 +30,12 @@ import static com.google.common.collect.Maps.newHashMap;
  */
 public class SensorSamplor {
 
+  private final Logger log = LoggerFactory.getLogger(SensorSamplor.class);
+
   private ConfigurationLoader configurationLoader;
   private SensorBus sensorBus;
-  private List<Sensor> sensors = newArrayList();
-  private List<SampleReceiver> receivers = newArrayList();
+  private final List<Sensor> sensors = newArrayList();
+  private final List<SampleReceiver> receivers = newArrayList();
 
   public static void main(String[] args) {
     new SensorSamplor().start();
@@ -58,19 +62,20 @@ public class SensorSamplor {
       configurationLoader = new ConfigurationLoader();
     }
     catch (Exception e) {
-      System.err.println(e.getMessage());
+      log.error("Failed to load configuration: {}", e.getMessage());
       System.exit(0);
     }
   }
 
   private void createSensorBus() {
-    sensorBus = new HazelcastSensorBus(getSensorPlatformIdentifier(), getBusName(), getUsername(), getPassword(), getBufferSize(), getNetworkInterfaces());
+    sensorBus = new HazelcastSensorBus(getSensorPlatformIdentifier(), getBusName(), getUsername(), getPassword(), getBufferSize(), getNetworkInterfaces(), getRemoteMembers());
   }
 
   private void loadSensors() {
     List<String> activeSensor = getActiveSensors();
     for (SensorFactory f : discoverSensors()) {
       if (activeSensor.contains(f.getIdentifier())) {
+        log.info("Loading sensor: {}.", f.getIdentifier());
         sensors.add(f.createSensorFor(getSensorPlatformIdentifier()));
       }
     }
@@ -82,7 +87,7 @@ public class SensorSamplor {
     sensorFactories.add(new ProcessorLoadSensorFactory());
 
     configure(sensorFactories);
-
+    log.info("Discovered sensors: {}", sensorFactories);
     return sensorFactories;
   }
 
@@ -90,6 +95,7 @@ public class SensorSamplor {
     List<String> activeReceivers = getActiveReceivers();
     for (ReceiverFactory f : discoverReceivers()) {
       if (activeReceivers.contains(f.getIdentifier())) {
+        log.info("Loading receiver: {}.", f.getIdentifier());
         receivers.add(f.createReceiver());
       }
     }
@@ -101,7 +107,7 @@ public class SensorSamplor {
     receiverFactories.add(new FileSampleReceiverFactory());
 
     configure(receiverFactories);
-
+    log.info("Discovered receivers: {}", receiverFactories);
     return receiverFactories;
   }
 
@@ -122,8 +128,8 @@ public class SensorSamplor {
     return result;
   }
 
-  private SampleReceiverManager createReceiverManager() {
-    return new SampleReceiverManager(sensorBus, receivers, getReceiverSensorPattern(), getReceiverPlatformPattern());
+  private void createReceiverManager() {
+    new SampleReceiverManager(sensorBus, receivers, getReceiverSensorPattern(), getReceiverPlatformPattern());
   }
 
   private SensorInvokerManager createSensorManager() throws SchedulerException {
@@ -152,6 +158,10 @@ public class SensorSamplor {
 
   private List<String> getNetworkInterfaces() {
     return configurationLoader.getStringListProperty(INTERFACES);
+  }
+
+  private List<String> getRemoteMembers() {
+    return configurationLoader.getStringListProperty(REMOTE_MEMBERS);
   }
 
   private List<String> getActiveSensors() {

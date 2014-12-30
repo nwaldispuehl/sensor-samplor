@@ -4,7 +4,10 @@ import ch.retorte.sensorsamplor.sensor.Sample;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.InterfacesConfig;
 import com.hazelcast.config.NetworkConfig;
+import com.hazelcast.config.TcpIpConfig;
 import com.hazelcast.core.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -15,37 +18,60 @@ import static com.hazelcast.core.Hazelcast.newHazelcastInstance;
  */
 public class HazelcastSensorBus implements SensorBus {
 
+  private final Logger log = LoggerFactory.getLogger(HazelcastSensorBus.class);
+
   private RingBuffer<Sample> sampleBuffer;
 
-  public HazelcastSensorBus(String nodeName, String busName, String username, String password, int bufferSize, List<String> networkInterfaces) {
-    initializeWith(nodeName, busName, username, password, bufferSize, networkInterfaces);
+  public HazelcastSensorBus(String nodeName, String busName, String username, String password, int bufferSize, List<String> networkInterfaces, List<String> remoteMembers) {
+    initializeWith(nodeName, busName, username, password, bufferSize, networkInterfaces, remoteMembers);
   }
 
-  public void initializeWith(String nodeName, String busName, String username, String password, int bufferSize, List<String> networkInterfaces) {
-    Config config = createConfigWith(nodeName, username, password, networkInterfaces);
+  public void initializeWith(String nodeName, String busName, String username, String password, int bufferSize, List<String> networkInterfaces, List<String> remoteMembers) {
+    Config config = createConfigWith(nodeName, username, password, networkInterfaces, remoteMembers);
     HazelcastInstance hazelcastInstance = newHazelcastInstance(config);
+    configureMembershipListenerFor(hazelcastInstance);
 
     IList<Sample> list = hazelcastInstance.getList(busName);
     ILock lock = hazelcastInstance.getLock(busName);
 
     createBufferWith(list, lock, bufferSize);
+
+    log.debug("Created HazelcastSensorBus with ID: {}, bus name: {}, user name: {}, password: {}, buffer size: {}, interfaces: {}, and remote members: {}.", nodeName, busName, username, password, bufferSize, networkInterfaces, remoteMembers);
   }
 
-  private Config createConfigWith(String nodeName, String username, String password, List<String> networkInterfaces) {
+  private void configureMembershipListenerFor(HazelcastInstance hazelcastInstance) {
+    hazelcastInstance.getCluster().addMembershipListener(new LoggingMembershipListener());
+  }
+
+  private Config createConfigWith(String nodeName, String username, String password, List<String> networkInterfaces, List<String> remoteMembers) {
     Config config = new Config(nodeName).setProperty("hazelcast.logging.type", "none");
     config.getGroupConfig().setName(username).setPassword(password);
-    setNetworkConfigWith(config.getNetworkConfig(), networkInterfaces);
+    setNetworkConfigWith(config.getNetworkConfig(), networkInterfaces, remoteMembers);
     return config;
   }
 
-  private void setNetworkConfigWith(NetworkConfig networkConfig, List<String> networkInterfaces) {
+  private void setNetworkConfigWith(NetworkConfig networkConfig, List<String> networkInterfaces, List<String> remoteMembers) {
     networkConfig.getJoin().getMulticastConfig().setEnabled(true);
+    setNetworkInterfacesConfigWith(networkConfig.getInterfaces(), networkInterfaces);
+    setTcpIpConfigWith(networkConfig.getJoin().getTcpIpConfig(), remoteMembers);
+  }
 
+  private void setNetworkInterfacesConfigWith(InterfacesConfig interfacesConfig, List<String> networkInterfaces) {
     if (!networkInterfaces.isEmpty()) {
-      InterfacesConfig interfacesConfig = networkConfig.getInterfaces();
       interfacesConfig.setEnabled(true);
       for (String i : networkInterfaces) {
         interfacesConfig.addInterface(i);
+        log.debug("Added interface {} to network config.", i);
+      }
+    }
+  }
+
+  private void setTcpIpConfigWith(TcpIpConfig tcpIpConfig, List<String> remoteMembers) {
+    if (!remoteMembers.isEmpty()) {
+      tcpIpConfig.setEnabled(true);
+      for (String m : remoteMembers) {
+        tcpIpConfig.addMember(m);
+        log.debug("Added member {} to TCP/IP config.", m);
       }
     }
   }
@@ -56,6 +82,7 @@ public class HazelcastSensorBus implements SensorBus {
 
   @Override
   public synchronized void send(Sample sample) {
+    log.debug("Sending sample: {}.", sample.getId());
     sampleBuffer.put(sample);
   }
 
@@ -67,7 +94,8 @@ public class HazelcastSensorBus implements SensorBus {
       void sampleAdded(Sample sample) {
         sampleListener.onSampleAdded(getBuffer(), sample);
       }
-    }, true);
+    });
+    log.debug("Registered new sample listener: {}.", sampleListener.getClass().getSimpleName());
   }
 
   @Override
@@ -83,6 +111,7 @@ public class HazelcastSensorBus implements SensorBus {
     public void itemAdded(ItemEvent itemEvent) {
       Object receivedItem = itemEvent.getItem();
       if (receivedItem instanceof Sample) {
+        log.debug("Item added event: {}.", receivedItem);
         sampleAdded((Sample) receivedItem);
       }
     }
@@ -90,6 +119,25 @@ public class HazelcastSensorBus implements SensorBus {
     @Override
     public void itemRemoved(ItemEvent itemEvent) {
       // Currently we don't react here.
+      log.debug("Item removed event: {}.", itemEvent.getItem());
+    }
+  }
+
+  private class LoggingMembershipListener implements MembershipListener {
+
+    @Override
+    public void memberAdded(MembershipEvent membershipEvent) {
+      log.info("Cluster added member: {}.", membershipEvent.getMember());
+    }
+
+    @Override
+    public void memberRemoved(MembershipEvent membershipEvent) {
+      log.info("Cluster removed member: {}.", membershipEvent.getMember());
+    }
+
+    @Override
+    public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
+      log.info("Cluster changed attribute of member: {} to {}:{}.", memberAttributeEvent.getMember(), memberAttributeEvent.getKey(), memberAttributeEvent.getValue());
     }
   }
 }

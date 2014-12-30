@@ -5,15 +5,14 @@ package ch.retorte.sensorsamplor.sensor.temperature.am2302;
  */
 public enum Am2302SensorStatusCode {
 
-
   DHT_ERROR_TIMEOUT(-1, "Sensor timeout."),
   DHT_ERROR_CHECKSUM(-2, "Checksum error."),
   DHT_ERROR_ARGUMENT(-3, "Wrong arguments provided."),
   DHT_ERROR_GPIO(-4, "Sensor not properly wired."),
   DHT_SUCCESS(0, null);
 
-  private int statusCode;
-  private String errorMessage;
+  private final int statusCode;
+  private final String errorMessage;
 
   Am2302SensorStatusCode(int errorCode, String errorMessage) {
     this.statusCode = errorCode;

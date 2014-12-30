@@ -25,6 +25,8 @@ public class ConfigurationProperties {
 
   public static final String INTERFACES = "sensorsamplor.bus.interfaces";
 
+  public static final String REMOTE_MEMBERS = "sensorsamplor.bus.remote_members";
+
   public static final String BUFFER_SIZE = "sensorsamplor.bus.buffer_size";
 
 }
