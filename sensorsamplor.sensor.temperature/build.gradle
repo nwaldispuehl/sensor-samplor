@@ -6,3 +6,8 @@ version = '0.0.1'
 dependencies {
   compile project(':sensorsamplor.base')
 }
+
+task installDht22Driver(type:Exec) {
+  workingDir 'src/main/c/'
+  commandLine 'sh', './build.sh'
+}
