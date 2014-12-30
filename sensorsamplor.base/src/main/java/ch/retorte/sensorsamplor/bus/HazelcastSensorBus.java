@@ -20,6 +20,7 @@ public class HazelcastSensorBus implements SensorBus {
 
   private final Logger log = LoggerFactory.getLogger(HazelcastSensorBus.class);
 
+  private HazelcastInstance hazelcastInstance;
   private RingBuffer<Sample> sampleBuffer;
 
   public HazelcastSensorBus(String nodeName, String busName, String username, String password, int bufferSize, List<String> networkInterfaces, List<String> remoteMembers) {
@@ -28,7 +29,7 @@ public class HazelcastSensorBus implements SensorBus {
 
   public void initializeWith(String nodeName, String busName, String username, String password, int bufferSize, List<String> networkInterfaces, List<String> remoteMembers) {
     Config config = createConfigWith(nodeName, username, password, networkInterfaces, remoteMembers);
-    HazelcastInstance hazelcastInstance = newHazelcastInstance(config);
+    hazelcastInstance = newHazelcastInstance(config);
     configureMembershipListenerFor(hazelcastInstance);
 
     IList<Sample> list = hazelcastInstance.getList(busName);
@@ -101,6 +102,13 @@ public class HazelcastSensorBus implements SensorBus {
   @Override
   public List<Sample> getBuffer() {
     return sampleBuffer.getBuffer();
+  }
+
+  @Override
+  public void stop() {
+    log.info("Attempting to shut down sensor bus.");
+    hazelcastInstance.shutdown();
+    log.info("Stopped sensor bus.");
   }
 
   private abstract class ItemListenerAdapter implements ItemListener<Sample> {

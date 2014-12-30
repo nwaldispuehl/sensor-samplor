@@ -32,16 +32,19 @@ public class SensorSamplor {
 
   private final Logger log = LoggerFactory.getLogger(SensorSamplor.class);
 
-  private ConfigurationLoader configurationLoader;
-  private SensorBus sensorBus;
   private final List<Sensor> sensors = newArrayList();
   private final List<SampleReceiver> receivers = newArrayList();
+
+  private ConfigurationLoader configurationLoader;
+  private SensorBus sensorBus;
+  private SensorInvokerManager sensorInvokerManager;
 
   public static void main(String[] args) {
     new SensorSamplor().start();
   }
 
   public void start() {
+    log.info("Starting SensorSamplor.");
     loadConfiguration();
     createSensorBus();
     loadReceivers();
@@ -51,13 +54,15 @@ public class SensorSamplor {
     try {
       createSensorManager().scheduleIntervals(getMeasurementCronExpression());
     } catch (SchedulerException e) {
-      // TODO Introduce logging
-      e.printStackTrace();
+      log.error("Was not able to register scheduler: {}.", e.getMessage());
       System.exit(1);
     }
+
+    registerShutdownHook();
   }
 
   private void loadConfiguration() {
+    log.info("Loading configuration.");
     try {
       configurationLoader = new ConfigurationLoader();
     }
@@ -133,7 +138,35 @@ public class SensorSamplor {
   }
 
   private SensorInvokerManager createSensorManager() throws SchedulerException {
-    return new SensorInvokerManager(sensorBus, sensors);
+
+    sensorInvokerManager = new SensorInvokerManager(sensorBus, sensors);
+    return sensorInvokerManager;
+  }
+
+  private void registerShutdownHook() {
+    Runtime.getRuntime().addShutdownHook(new SensorSamplorShutdownHook());
+  }
+
+  private class SensorSamplorShutdownHook extends Thread {
+
+    @Override
+    public void run() {
+      stopInvokerManager();
+      stopSensorBus();
+      log.info("Gracefully shut down SensorSamplor. Have a nice day, sir!");
+    }
+
+    private void stopInvokerManager() {
+      try {
+        sensorInvokerManager.stop();
+      } catch (SchedulerException e) {
+        log.warn("Was not able to cleanly shut down scheduler. Reason: {}.", e.getMessage());
+      }
+    }
+
+    private void stopSensorBus() {
+      sensorBus.stop();
+    }
   }
 
   private String getMeasurementCronExpression() {

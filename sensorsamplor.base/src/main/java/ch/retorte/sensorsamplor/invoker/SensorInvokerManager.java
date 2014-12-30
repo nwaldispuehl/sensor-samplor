@@ -67,6 +67,8 @@ public class SensorInvokerManager {
   }
 
   public void stop() throws SchedulerException {
+    log.info("Attempting to shut down sensor invoker manager.");
     scheduler.shutdown();
+    log.info("Stopped sensor invoker manager.");
   }
 }
