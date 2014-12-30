@@ -8,6 +8,7 @@ dependencies {
 }
 
 task installDht22Driver(type:Exec) {
+  description 'Compiles the DHT 22 temperature/humidity sensor driver and copies it into the systems library directory. For linux systems only.'
   workingDir 'src/main/c/'
   commandLine 'sh', './build.sh'
 }
