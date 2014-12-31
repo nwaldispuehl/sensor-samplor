@@ -25,7 +25,7 @@ The default use case is to measure temperature with a DHT22/AM2302 temperature/h
 ## Manuals
 
 More information on how to install and use the software can be found in the wiki:
-* [Prepare RaspberryPi as temperature sensor node](https://github.com/nwaldispuehl/sensor-samplor/wiki/Prepare-RaspberryPi-as-temperature-sensor-node.)
+* [Prepare RaspberryPi as temperature sensor node](https://github.com/nwaldispuehl/sensor-samplor/wiki/Prepare-RaspberryPi-as-temperature-sensor-node)
 * [Install the SensorSamplor on Raspberry Pi](https://github.com/nwaldispuehl/sensor-samplor/wiki/Install-the-SensorSamplor-on-Raspberry-Pi)
 * [Configure SensorSamplor](https://github.com/nwaldispuehl/sensor-samplor/wiki/Configure-SensorSamplor)
 
