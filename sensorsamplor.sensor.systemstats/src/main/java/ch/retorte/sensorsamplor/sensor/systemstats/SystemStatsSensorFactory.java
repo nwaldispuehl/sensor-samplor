@@ -1,4 +1,4 @@
-package ch.retorte.sensorsamplor.sensor.processorload;
+package ch.retorte.sensorsamplor.sensor.systemstats;
 
 import ch.retorte.sensorsamplor.sensor.Sensor;
 import ch.retorte.sensorsamplor.sensor.SensorFactory;
@@ -9,13 +9,13 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
- * Creates the processor load sensor.
+ * Creates the system stats sensor.
  */
-public class ProcessorLoadSensorFactory implements SensorFactory {
+public class SystemStatsSensorFactory implements SensorFactory {
 
   @Override
   public Sensor createSensorFor(String platformIdentifier) {
-    return new ProcessorLoadSensor(platformIdentifier);
+    return new SystemStatsSensor(platformIdentifier);
   }
 
   @Override
@@ -30,6 +30,6 @@ public class ProcessorLoadSensorFactory implements SensorFactory {
 
   @Override
   public String getIdentifier() {
-    return ProcessorLoadSensor.IDENTIFIER;
+    return SystemStatsSensor.IDENTIFIER;
   }
 }

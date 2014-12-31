@@ -3,4 +3,4 @@ include "sensorsamplor.base",
         "sensorsamplor.sensor.temperature",
         "sensorsamplor.receiver.console",
         "sensorsamplor.receiver.file",
-        "sensorsamplor.sensor.processorload"
+        "sensorsamplor.sensor.systemstats"

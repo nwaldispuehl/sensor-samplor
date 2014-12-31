@@ -10,7 +10,7 @@ import ch.retorte.sensorsamplor.receiver.console.ConsolePrintSampleReceiverFacto
 import ch.retorte.sensorsamplor.receiver.file.FileSampleReceiverFactory;
 import ch.retorte.sensorsamplor.sensor.Sensor;
 import ch.retorte.sensorsamplor.sensor.SensorFactory;
-import ch.retorte.sensorsamplor.sensor.processorload.ProcessorLoadSensorFactory;
+import ch.retorte.sensorsamplor.sensor.systemstats.SystemStatsSensorFactory;
 import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySensorFactory;
 import ch.retorte.sensorsamplor.configuration.ConfigurationLoader;
 import org.quartz.SchedulerException;
@@ -89,7 +89,7 @@ public class SensorSamplor {
   private List<SensorFactory> discoverSensors() {
     List<SensorFactory> sensorFactories = newArrayList();
     sensorFactories.add(new TemperatureHumiditySensorFactory());
-    sensorFactories.add(new ProcessorLoadSensorFactory());
+    sensorFactories.add(new SystemStatsSensorFactory());
 
     configure(sensorFactories);
     log.info("Discovered sensors: {}", sensorFactories);
