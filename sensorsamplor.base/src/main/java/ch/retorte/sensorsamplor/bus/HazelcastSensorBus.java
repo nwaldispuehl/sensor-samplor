@@ -38,6 +38,7 @@ public class HazelcastSensorBus implements SensorBus {
     createBufferWith(list, lock, bufferSize);
 
     log.debug("Created HazelcastSensorBus with ID: {}, bus name: {}, user name: {}, password: {}, buffer size: {}, interfaces: {}, and remote members: {}.", nodeName, busName, username, password, bufferSize, networkInterfaces, remoteMembers);
+    log.info("Total number of cluster members: {}.", hazelcastInstance.getCluster().getMembers().size());
   }
 
   private void configureMembershipListenerFor(HazelcastInstance hazelcastInstance) {
@@ -135,12 +136,12 @@ public class HazelcastSensorBus implements SensorBus {
 
     @Override
     public void memberAdded(MembershipEvent membershipEvent) {
-      log.info("Cluster added member: {}.", membershipEvent.getMember());
+      log.info("Cluster added member: {}. Total members now: {}.", membershipEvent.getMember(), membershipEvent.getMembers().size());
     }
 
     @Override
     public void memberRemoved(MembershipEvent membershipEvent) {
-      log.info("Cluster removed member: {}.", membershipEvent.getMember());
+      log.info("Cluster removed member: {}. Total members now: {}.", membershipEvent.getMember(), membershipEvent.getMembers().size());
     }
 
     @Override
