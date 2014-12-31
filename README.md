@@ -10,14 +10,6 @@ _A generic data sampling software for data logging and sensor networks._
 * [Basic use cases](#basic_use_cases)
  * [A temperature data logger](#data_logger_usecase)
  * [A sensor network](#sensor_network_usecase)
-* [How to configure](#how_to_configure)
-* [How to download](#how_to_download)
-* [How to run](#how_to_run)
-* [How to build](#how_to_build)
-* [How to setup Raspberry Pi with DHT22/AM2302 sensor as a sensor node](#how_to_setup_raspberry_pi_sensor_node)
- * [Install DHT22/AM2302 driver](#install_dm2302_driver)
- * [Configure Wifi](#configure_wifi)
-* [How to add own sensors/receivers](#add_own_sensors_receivers)
 
 
 <a name='introduction' />
@@ -171,54 +163,4 @@ On the personal computer, when the software is running on all nodes, the followi
     2014-12-27:18:47:00 +0100 -- node_1 -- temperature -- 0a41690a-9180-476a-b3c4-934a6562c89f -- {"humidity":25.7,"temperature":24.1}
     2014-12-27:18:47:00 +0100 -- node_2 -- temperature -- 1c13d32c-f092-4a2c-9007-dd733066fe0e -- {"humidity":42.6,"temperature":21.2}
     ...
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-...
-
-Work in progress...
-
-## How to build
-
-### Build driver
-
-Build the DHT22/AM2302 sensor driver by calling the make file in the respective directory:
-
-    $ cd sensorsamplor.sensor.temperature.am2302
-    $ cd src/main/c
-    $ make
-    $ make install
-    $ make clean
-
-The driver is compiled (```libPiDht.so```) and copied into the systems library directory ```/usr/lib```.
-
-### Build software
-
-To the build the software, call the gradle wrapper from the projects root:
-
-    $ ./gradlew installApp
-
-### Run software
-
-Then, you can run it with this command (we need the ```sudo``` to talk to the sensor):
-
-    $ cd sensorsamplor.app/build/install/sensorsamplor.app/bin/
-    $ sudo ./sensorsamplor.app
-
-## How to deploy
-
-...
-
 
