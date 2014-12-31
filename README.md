@@ -4,10 +4,9 @@ _A generic data sampling software for data logging and sensor networks._
 
 ![Raspberry Pi with AM2302 sensor](https://github.com/nwaldispuehl/sensor-samplor/wiki/img/raspberry_pi_with_am2302_sensor.jpg)
 
-[Some graphics...]
-
 ##### Table of Contents
 * [Introduction](#introduction)
+* [Manuals](#manuals)
 * [Basic use cases](#basic_use_cases)
  * [A temperature data logger](#data_logger_usecase)
  * [A sensor network](#sensor_network_usecase)
@@ -29,6 +28,15 @@ Every started instance of the **SensorSamplor** is considered a single *Node* in
 Usually in a sensor network, there are sensing nodes which only perform sensor measurements and few nodes which do not sense anything but only receive, that is, aggregate and store the measurements sent over the bus.
 
 The default use case is to measure temperature with a DHT22/AM2302 temperature/humidity sensor on a [Raspberry Pi](http://www.raspberrypi.org/). The software can be run on a wide variety of platforms using any thinkable sensor however. The platform needs to support [Java 7](https://www.java.com/).
+
+<a name='manuals' />
+## Manuals
+
+More information on how to install and use the software can be found in the wiki:
+* [Prepare RaspberryPi as temperature sensor node](https://github.com/nwaldispuehl/sensor-samplor/wiki/Prepare-RaspberryPi-as-temperature-sensor-node.)
+* [Install the SensorSamplor on Raspberry Pi](https://github.com/nwaldispuehl/sensor-samplor/wiki/Install-the-SensorSamplor-on-Raspberry-Pi)
+* [Configure SensorSamplor](https://github.com/nwaldispuehl/sensor-samplor/wiki/Configure-SensorSamplor)
+
 
 <a name='basic_use_cases' />
 ## Basic use cases
@@ -81,7 +89,11 @@ The software then starts to measure the temperature and - on every measurement -
     sensor.log.temperature.2014-12-29
     ...
 
-These logs then look as follows. The pattern is ```TIMESTAMP -- NODE IDENTIFIER -- SENSOR TYPE -- SAMPLE UUID -- DATA PAYLOAD```.
+These logs then look as follows. The log file pattern is
+
+    ```TIMESTAMP -- NODE IDENTIFIER -- SENSOR TYPE -- SAMPLE UUID -- DATA PAYLOAD```
+
+and the contents of an actual log file thus is like this:
 
     $ cat /var/log/sensor-samplor/sensor.log.temperature.2014-12-27
 
