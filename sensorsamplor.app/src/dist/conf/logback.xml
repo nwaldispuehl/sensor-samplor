@@ -20,7 +20,9 @@
         </encoder>
     </appender>
 
-    <root level="DEBUG">
+    <logger name="org.quartz" level="INFO"/>
+
+    <root level="INFO">
         <appender-ref ref="FILE" />
     </root>
 </configuration>

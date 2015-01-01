@@ -7,9 +7,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
 
 import static com.google.common.base.Joiner.on;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Lists.newArrayListWithCapacity;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * Distributed ring buffer keeping the n last items.
@@ -19,67 +21,95 @@ public class RingBuffer<T extends Serializable> implements Serializable {
   private final Logger log = LoggerFactory.getLogger(RingBuffer.class);
 
   private final IList<T> list;
-  private final Lock lock;
-  private final int bufferSize;
+  private final ILock lock;
+  private final IAtomicLong nextPosition;
+  private final Integer bufferSize;
 
-  RingBuffer(IList<T> list, Lock lock, int bufferSize) {
+  private ModularIncrementFunction modularIncrement;
+
+  RingBuffer(IList<T> list, ILock lock, IAtomicLong nextPosition, int bufferSize) {
     this.list = list;
     this.lock = lock;
+    this.nextPosition = nextPosition;
     this.bufferSize = bufferSize;
+    this.modularIncrement = new ModularIncrementFunction(bufferSize);
 
     log.debug("Creating ring buffer with buffer size: {}.", bufferSize);
   }
 
   void put(T t) {
-    lock.lock();
     try {
-      while (listIsTooLarge()) {
-        removeListTail();
+      if (lock.tryLock(10, SECONDS)) {
+        try {
+          putIntoBuffer(t);
+        } catch (Throwable e) {
+          log.error("Problems while trying to add item to buffer: {}.", e.getMessage(), e);
+        } finally {
+          lock.unlock();
+        }
+        log.debug("Added new buffer item: {}.", t);
+
+      } else {
+        log.warn("Was not able to add item to buffer due to locked buffer. Giving up for this time.");
       }
-      addAtFront(t);
     }
-    catch (Throwable e) {
-      log.error("Problems while trying to add item to buffer: {}.", e.getMessage(), e);
+    catch (InterruptedException e) {
+      log.warn("Thread was interrupted: {}.", e.getMessage());
     }
-    finally {
-      lock.unlock();
-    }
-    log.debug("Added new buffer item: {}.", t);
   }
 
-  private boolean listIsTooLarge() {
+  private void putIntoBuffer(T t) {
+    if (isListFull()) {
+      putToNextPosition(t);
+    } else {
+      appendToList(t);
+    }
+  }
+
+  @VisibleForTesting
+  void putToNextPosition(T t) {
+    long newId = nextPosition.getAndAlter(modularIncrement);
+    list.set((int) newId, t);
+  }
+
+  @VisibleForTesting
+  void appendToList(T t) {
+    nextPosition.alter(modularIncrement);
+    list.add(t);
+  }
+
+  T get() {
+    return list.get((int) nextPosition.get());
+  }
+
+  List<T> getBuffer() {
+    if (isListFull()) {
+      return copyModularList();
+    }
+    else {
+      return copyList();
+    }
+  }
+
+  private boolean isListFull() {
     return !hasSpaceLeft(list, bufferSize);
   }
 
   @VisibleForTesting
-  boolean hasSpaceLeft(List<T> l, int maximumSize) {
-    return l.size() < maximumSize;
+  boolean hasSpaceLeft(List<T> l, int limit) {
+    return l.size() < limit;
   }
 
-  private void removeListTail() {
-    log.debug("List too large ({} items), removed buffer tail.", list.size());
-    removeListTailOf(list);
+  private List<T> copyList() {
+    return newArrayList(list);
   }
 
-  @VisibleForTesting
-  void removeListTailOf(List<T> l) {
-    l.remove(l.size() - 1);
-  }
-
-  private void addAtFront(T t) {
-    addAtFrontIn(list, t);
-  }
-
-  @VisibleForTesting
-  void addAtFrontIn(List<T> l, T t) {
-    l.add(0, t);
-  }
-
-  T get() {
-    return list.get(0);
-  }
-
-  List<T> getBuffer() {
+  private List<T> copyModularList() {
+    List<T> result = newArrayListWithCapacity(bufferSize);
+    int p = (int) nextPosition.get();
+    for (int i = 0; i < bufferSize; i++) {
+      result.add(list.get((p + i) % bufferSize));
+    }
     return list;
   }
 

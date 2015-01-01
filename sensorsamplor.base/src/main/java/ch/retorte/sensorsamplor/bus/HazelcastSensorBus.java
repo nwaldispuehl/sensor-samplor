@@ -34,8 +34,9 @@ public class HazelcastSensorBus implements SensorBus {
 
     IList<Sample> list = hazelcastInstance.getList(busName);
     ILock lock = hazelcastInstance.getLock(busName);
+    IAtomicLong position = hazelcastInstance.getAtomicLong(busName);
 
-    createBufferWith(list, lock, bufferSize);
+    createBufferWith(list, lock, position, bufferSize);
 
     log.debug("Created HazelcastSensorBus with ID: {}, bus name: {}, user name: {}, password: {}, buffer size: {}, interfaces: {}, and remote members: {}.", nodeName, busName, username, password, bufferSize, networkInterfaces, remoteMembers);
     log.info("Total number of cluster members: {}.", hazelcastInstance.getCluster().getMembers().size());
@@ -78,8 +79,8 @@ public class HazelcastSensorBus implements SensorBus {
     }
   }
 
-  private void createBufferWith(IList<Sample> list, ILock lock, int bufferSize) {
-    sampleBuffer = new RingBuffer<>(list, lock, bufferSize);
+  private void createBufferWith(IList<Sample> list, ILock lock, IAtomicLong position, int bufferSize) {
+    sampleBuffer = new RingBuffer<>(list, lock, position, bufferSize);
   }
 
   @Override

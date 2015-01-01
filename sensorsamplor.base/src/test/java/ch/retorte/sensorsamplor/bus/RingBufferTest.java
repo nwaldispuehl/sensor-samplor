@@ -1,16 +1,17 @@
 package ch.retorte.sensorsamplor.bus;
 
+import com.hazelcast.core.IAtomicLong;
+import com.hazelcast.core.IFunction;
 import com.hazelcast.core.IList;
 import com.hazelcast.core.ILock;
 import org.junit.Test;
+import org.mockito.Matchers;
 
 import java.io.Serializable;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Unit test for the ring buffer.
@@ -19,18 +20,19 @@ public class RingBufferTest {
 
   private final IList<Serializable> list = mock(IList.class);
   private final ILock lock = mock(ILock.class);
-  private final RingBuffer<Serializable> sut = new RingBuffer<>(list, lock, 4);
+  private final IAtomicLong nextPosition = mock(IAtomicLong.class);
+  private final RingBuffer<Serializable> sut = new RingBuffer<>(list, lock, nextPosition, 4);
 
   @Test
-  public void shouldPutNewItemsAtFront() {
+  public void shouldAppendToList() {
     // given
     Serializable item = mock(Serializable.class);
 
     // when
-    sut.put(item);
+    sut.appendToList(item);
 
     // then
-    verify(list).add(0, item);
+    verify(list).add(item);
   }
 
   @Test
@@ -43,18 +45,18 @@ public class RingBufferTest {
     assertFalse(sut.hasSpaceLeft(list, 3));
     assertFalse(sut.hasSpaceLeft(list, 4));
     assertTrue(sut.hasSpaceLeft(list, 5));
-
   }
 
   @Test
-  public void shouldRemoveTailElementOfList() {
+  public void shouldAddItemToNextPosition() {
     // given
-    when(list.size()).thenReturn(36);
+    Serializable item = mock(Serializable.class);
+    when(nextPosition.getAndAlter(Matchers.<IFunction<Long, Long>>any())).thenReturn(3l);
 
     // when
-    sut.removeListTailOf(list);
+    sut.putToNextPosition(item);
 
     // then
-    verify(list).remove(35);
+    verify(list).set(3, item);
   }
 }
