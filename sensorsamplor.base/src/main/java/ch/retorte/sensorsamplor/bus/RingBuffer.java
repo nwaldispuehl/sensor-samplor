@@ -8,9 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.util.List;
 
-import static com.google.common.base.Joiner.on;
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Lists.newArrayListWithCapacity;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
@@ -18,107 +16,117 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class RingBuffer<T extends Serializable> implements Serializable {
 
+  private static final int BASE_BUFFER_SIZE = 1024;
+
   private final Logger log = LoggerFactory.getLogger(RingBuffer.class);
 
-  private final IList<T> list;
+  private final IList<T> buffer;
   private final ILock lock;
-  private final IAtomicLong nextPosition;
-  private final Integer bufferSize;
+  private final int bufferSize;
+  private final int maximumBufferSize;
 
-  private ModularIncrementFunction modularIncrement;
 
-  RingBuffer(IList<T> list, ILock lock, IAtomicLong nextPosition, int bufferSize) {
-    this.list = list;
+  RingBuffer(IList<T> buffer, ILock lock, int bufferSize, int maximumBufferSize) {
+    this.buffer = buffer;
     this.lock = lock;
-    this.nextPosition = nextPosition;
-    this.bufferSize = bufferSize;
-    this.modularIncrement = new ModularIncrementFunction(bufferSize);
+    this.bufferSize = checkPositive(bufferSize);
+    this.maximumBufferSize = checkPositive(maximumBufferSize);
 
-    log.debug("Creating ring buffer with buffer size: {}.", bufferSize);
+    log.debug("Creating ring buffer with buffer size: {} (internal size: {}).", bufferSize, maximumBufferSize);
+  }
+
+  RingBuffer(IList<T> buffer, ILock lock, int bufferSize) {
+    this(buffer, lock, bufferSize, BASE_BUFFER_SIZE + bufferSize * 2);
+  }
+
+  private int checkPositive(int bufferSize) {
+    if (bufferSize <= 0) {
+      throw new IllegalArgumentException("RingBuffer buffer size needs to be positive!");
+    }
+    return bufferSize;
   }
 
   void put(T t) {
+    putWithLoggingAndChecks(t);
+  }
+
+  private void putWithLoggingAndChecks(T t) {
+    putWithSizeCheck(t);
+    log.debug("Added new buffer (size: {}) item: {}.", buffer.size(), t);
+  }
+
+  private void putWithSizeCheck(T t) {
+    if (bufferIsTooLarge()) {
+      reduceBufferWithLocking();
+    }
+
+    buffer.add(t);
+  }
+
+  private boolean bufferIsTooLarge() {
+    return bufferIsTooLargeWith(maximumBufferSize, buffer);
+  }
+
+  @VisibleForTesting
+  boolean bufferIsTooLargeWith(int size, List<T> list) {
+    return size < list.size();
+  }
+
+  private void reduceBufferWithLocking() {
     try {
       if (lock.tryLock(10, SECONDS)) {
         try {
-          putIntoBuffer(t);
+          log.debug("Entered the reduce buffer monitor area with current buffer size: {}.", buffer.size());
+          /* Let's check the buffer size again to prevent race conditions. */
+          if (bufferIsTooLarge()) {
+            reduceBuffer();
+          }
         } catch (Throwable e) {
-          log.error("Problems while trying to add item to buffer: {}.", e.getMessage(), e);
+          log.error("Problems while trying to reduce the buffer: {}.", e.getMessage(), e);
         } finally {
           lock.unlock();
         }
-        log.debug("Added new buffer item: {}.", t);
-
       } else {
-        log.warn("Was not able to add item to buffer due to locked buffer. Giving up for this time.");
+        log.debug("Was not able to get lock for buffer reduction. Assuming someone else reduced it already.");
       }
     }
     catch (InterruptedException e) {
-      log.warn("Thread was interrupted: {}.", e.getMessage());
+      log.warn("Buffer reduction process was interrupted: {}.", e.getMessage());
     }
   }
 
-  private void putIntoBuffer(T t) {
-    if (isListFull()) {
-      putToNextPosition(t);
-    } else {
-      appendToList(t);
+  /**
+   * We have a bufferSize we talk publicly about, but the actual buffer is a factor larger, obeying the maximumBufferSize limit.
+   * If this limit is reached, we cut away the first entries to truncate it to the bufferSize again.
+   * We are doing this in the following rather inefficieny way to allow other nodes to add items while we're reducing the buffer.
+   */
+  private void reduceBuffer() {
+    log.info("Reducing buffer from currently {} (limit: {}) to {}.", buffer.size(), maximumBufferSize, bufferSize);
+    while(bufferIsTooLargeWith(bufferSize, buffer)) {
+      buffer.remove(0);
     }
-  }
-
-  @VisibleForTesting
-  void putToNextPosition(T t) {
-    long newId = nextPosition.getAndAlter(modularIncrement);
-    list.set((int) newId, t);
-  }
-
-  @VisibleForTesting
-  void appendToList(T t) {
-    nextPosition.alter(modularIncrement);
-    list.add(t);
   }
 
   T get() {
-    return list.get((int) nextPosition.get());
+    return buffer.get(buffer.size()-1);
   }
 
   List<T> getBuffer() {
-    if (isListFull()) {
-      return copyModularList();
-    }
-    else {
-      return copyList();
-    }
-  }
-
-  private boolean isListFull() {
-    return !hasSpaceLeft(list, bufferSize);
+      return copySubListOf(buffer, bufferSize);
   }
 
   @VisibleForTesting
-  boolean hasSpaceLeft(List<T> l, int limit) {
-    return l.size() < limit;
-  }
-
-  private List<T> copyList() {
-    return newArrayList(list);
-  }
-
-  private List<T> copyModularList() {
-    List<T> result = newArrayListWithCapacity(bufferSize);
-    int p = (int) nextPosition.get();
-    for (int i = 0; i < bufferSize; i++) {
-      result.add(list.get((p + i) % bufferSize));
+  List<T> copySubListOf(List<T> list, int extractSize) {
+    List<T> result = newArrayList(list);
+    int s = result.size();
+    if (s <= extractSize) {
+      return result;
     }
-    return list;
-  }
 
-  @Override
-  public String toString() {
-    return "[" + on(",").join(list.toArray()) + "]";
+    return result.subList(s - 1 - extractSize, s - 1);
   }
 
   void addItemListener(ItemListener<T> itemListener) {
-    list.addItemListener(itemListener, true);
+    buffer.addItemListener(itemListener, true);
   }
 }
