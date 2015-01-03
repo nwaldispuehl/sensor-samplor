@@ -16,7 +16,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class RingBuffer<T extends Serializable> implements Serializable {
 
-  private static final int BASE_BUFFER_SIZE = 1024;
+  private static final int BASE_BUFFER_SIZE = 128;
 
   private final Logger log = LoggerFactory.getLogger(RingBuffer.class);
 
