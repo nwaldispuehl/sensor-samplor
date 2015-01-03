@@ -13,6 +13,10 @@ public class ConsolePrintSampleReceiver implements SampleReceiver {
 
   public static final String IDENTIFIER = "console";
 
+  public ConsolePrintSampleReceiver() {
+    System.out.println("Started ConsolePrintSampleReceiver.");
+  }
+
   public void processSample(List<Sample> sampleBuffer, Sample sample) {
       System.out.println(sample);
   }
