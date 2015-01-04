@@ -27,6 +27,7 @@ public class Am2302Sensor implements Sensor {
   private static final int SENSOR_TYPE = 22;
   private static final int FLOAT_SIZE = 16;
   private static final int RETRIES_IN_ERROR_CASE = 4;
+  private static final int WAITING_TIME_MS_BEFORE_RETRY = 250;
 
   private final Logger log = LoggerFactory.getLogger(Am2302Sensor.class);
 
@@ -41,6 +42,9 @@ public class Am2302Sensor implements Sensor {
 
   private final Am2302SensorLibrary sensorLibrary;
 
+  /**
+   * The interface for the native piDht library we're using for communication with the sensor.
+   */
   private interface Am2302SensorLibrary extends Library {
     public int pi_dht_read(int sensor, int pin, Pointer humidity, Pointer temperature);
   }
@@ -84,7 +88,7 @@ public class Am2302Sensor implements Sensor {
       returnCode = sensorLibrary.pi_dht_read(SENSOR_TYPE, pin, humidity, temperature);
 
       if (measurementFailed()) {
-        sleepFor(100);
+        sleepFor(WAITING_TIME_MS_BEFORE_RETRY);
       }
     }
   }
