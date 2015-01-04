@@ -44,21 +44,17 @@ public class SensorSamplor {
   }
 
   public void start() {
-    log.info("Starting SensorSamplor.");
+    log.info("### Starting SensorSamplor.");
+
     loadConfiguration();
     createSensorBus();
     loadReceivers();
     createReceiverManager();
     loadSensors();
-
-    try {
-      createSensorManager().scheduleIntervals(getMeasurementCronExpression());
-    } catch (SchedulerException e) {
-      log.error("Was not able to register scheduler: {}.", e.getMessage());
-      System.exit(1);
-    }
-
+    scheduleSensors();
     registerShutdownHook();
+
+    log.info("### SensorSamplor operational.");
   }
 
   private void loadConfiguration() {
@@ -73,10 +69,12 @@ public class SensorSamplor {
   }
 
   private void createSensorBus() {
+    log.info("Creating sensor bus.");
     sensorBus = new HazelcastSensorBus(getSensorPlatformIdentifier(), getBusName(), getUsername(), getPassword(), getBufferSize(), getNetworkInterfaces(), getRemoteMembers());
   }
 
   private void loadSensors() {
+    log.info("Loading sensors.");
     List<String> activeSensor = getActiveSensors();
     for (SensorFactory f : discoverSensors()) {
       if (activeSensor.contains(f.getIdentifier())) {
@@ -96,7 +94,18 @@ public class SensorSamplor {
     return sensorFactories;
   }
 
+  private void scheduleSensors() {
+    log.info("Scheduling sensors.");
+    try {
+      createSensorManager().scheduleIntervals(getMeasurementCronExpression());
+    } catch (SchedulerException e) {
+      log.error("Was not able to register scheduler: {}.", e.getMessage());
+      System.exit(1);
+    }
+  }
+
   private void loadReceivers() {
+    log.info("Loading receivers.");
     List<String> activeReceivers = getActiveReceivers();
     for (ReceiverFactory f : discoverReceivers()) {
       if (activeReceivers.contains(f.getIdentifier())) {
@@ -134,6 +143,7 @@ public class SensorSamplor {
   }
 
   private void createReceiverManager() {
+    log.info("Creating receiver manager.");
     new SampleReceiverManager(sensorBus, receivers, getReceiverSensorPattern(), getReceiverPlatformPattern());
   }
 
@@ -144,6 +154,7 @@ public class SensorSamplor {
   }
 
   private void registerShutdownHook() {
+    log.info("Registering shutdown hooks.");
     Runtime.getRuntime().addShutdownHook(new SensorSamplorShutdownHook());
   }
 
