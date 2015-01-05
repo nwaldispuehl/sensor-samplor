@@ -3,4 +3,6 @@ include "sensorsamplor.base",
         "sensorsamplor.sensor.temperature",
         "sensorsamplor.receiver.console",
         "sensorsamplor.receiver.file",
+        "sensorsamplor.receiver.jsonexporter",
         "sensorsamplor.sensor.systemstats"
+
