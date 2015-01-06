@@ -20,7 +20,7 @@ public class ConfigurationLoaderTest {
 
   @Test
   public void shouldParseStringListProperties() {
-    assertIsParsedAs(null, null);
+    assertIsParsedAs(null, (String[]) null);
     assertIsParsedAs("", new String[0]);
     assertIsParsedAs("abc", "abc");
     assertIsParsedAs("a,b,c", "a", "b", "c");
