@@ -5,9 +5,15 @@ import ch.retorte.sensorsamplor.sensor.ErrorSample;
 import ch.retorte.sensorsamplor.sensor.Sample;
 import com.google.common.annotations.VisibleForTesting;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
+import static com.google.common.base.Charsets.UTF_8;
 import static org.joda.time.DateTime.now;
 
 /**
@@ -19,6 +25,8 @@ public class JsonExporterSampleReceiver implements SampleReceiver {
 
   /* Don't export more than once every n seconds. */
   private static final int EXPORT_INTERVAL_SECONDS = 10;
+
+  private final Logger log = LoggerFactory.getLogger(JsonExporterSampleReceiver.class);
 
   private static DateTime lastExport = now();
 
@@ -40,7 +48,7 @@ public class JsonExporterSampleReceiver implements SampleReceiver {
   public void processSample(List<Sample> sampleBuffer, Sample sample) {
     addToCollection(sample);
     if (enoughTimeHasPassed()) {
-      exportCollection();
+      exportCollectionWithErrorHandling();
     }
   }
 
@@ -61,16 +69,23 @@ public class JsonExporterSampleReceiver implements SampleReceiver {
     return lastExport;
   }
 
-  private void exportCollection() {
+  private void exportCollectionWithErrorHandling() {
+    try {
+      exportCollection();
+    }
+    catch (IOException e) {
+      log.error("Was not able to export JSON to path: {} because of: {}.", outputFile, e.getMessage());
+    }
+  }
+
+  private void exportCollection() throws IOException {
     String json = sampleCollection.toJSON();
-    // TODO: Write json string to position provided as argument.
+    Files.write(Paths.get(outputFile), json.getBytes(UTF_8));
   }
 
   @Override
   public void processError(List<Sample> sampleBuffer, ErrorSample errorSample) {
     // ignore for now
   }
-
-
 
 }

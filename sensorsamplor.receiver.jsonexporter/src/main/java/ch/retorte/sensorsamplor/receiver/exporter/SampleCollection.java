@@ -1,16 +1,17 @@
 package ch.retorte.sensorsamplor.receiver.exporter;
 
 import ch.retorte.sensorsamplor.sensor.Sample;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Maps.newConcurrentMap;
 
@@ -47,7 +48,6 @@ public class SampleCollection {
       createValuesFor(sample);
     }
   }
-
 
   private boolean hasNode(Sample sample) {
     return hasNode(sample.getPlatformIdentifier());
@@ -135,25 +135,33 @@ public class SampleCollection {
   }
 
   public String toJSON() {
-    JSONObject result = new JSONObject();
+    JSONObject platformJson = new JSONObject();
 
     for (Map.Entry<String, Map<String, Map<String, List<SampleTuple>>>> platform : data.entrySet()) {
-      JSONObject sensor = new JSONObject();
-      for () {
+      JSONObject sensorJson = new JSONObject();
 
+      for (Map.Entry<String, Map<String, List<SampleTuple>>> sensor : platform.getValue().entrySet()) {
+        JSONObject valuesJson = new JSONObject();
+
+        for (Map.Entry<String, List<SampleTuple>> values : sensor.getValue().entrySet()) {
+          JSONArray valueJson = new JSONArray();
+
+          for (SampleTuple sampleTuple : values.getValue()) {
+            JSONObject tuple = new JSONObject();
+            tuple.put(sampleTuple.timestamp, sampleTuple.value);
+            valueJson.add(tuple);
+          }
+
+          valuesJson.put(values.getKey(), valueJson);
+        }
+
+        sensorJson.put(sensor.getKey(), valuesJson);
       }
 
-
-      result.put(platform.getKey(), sensor);
+      platformJson.put(platform.getKey(), sensorJson);
     }
 
-
-//    for (Map.Entry<String, Serializable> e : data.entrySet()) {
-//      jsonObject.put(e.getKey(), e.getValue());
-//    }
-//    String output = jsonObject.toJSONString();
-
-    return result.toJSONString();
+    return platformJson.toJSONString();
   }
 
 }

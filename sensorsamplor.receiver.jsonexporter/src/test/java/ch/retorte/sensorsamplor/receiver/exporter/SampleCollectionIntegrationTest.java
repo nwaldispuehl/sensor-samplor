@@ -44,7 +44,22 @@ public class SampleCollectionIntegrationTest {
     String json = sut.toJSON();
 
     // then
-    assertThat(json, is("{'myPlatform' : { 'mySensor': { 'myKey' : [ '2015-01-10T10:00:00' : 'myValue']}}}"));
+    assertThat(json, is("{\"myPlatform\":{\"mySensor\":{\"myKey\":[{\"2015-01-10T10:00:00.000+01:00\":\"myValue\"}]}}}"));
+  }
+
+  @Test
+  public void shouldProvideJsonForMultipleSample() {
+    // given
+    Sample s1 = sampleFrom(d1, "myPlatform", "mySensor", "myKey", "myValue1");
+    Sample s2 = sampleFrom(d2, "myPlatform", "mySensor", "myKey", "myValue2");
+
+    // when
+    sut.addSample(s1);
+    sut.addSample(s2);
+    String json = sut.toJSON();
+
+    // then
+    assertThat(json, is("{\"myPlatform\":{\"mySensor\":{\"myKey\":[{\"2015-01-10T10:00:00.000+01:00\":\"myValue1\"},{\"2015-01-10T10:01:00.000+01:00\":\"myValue2\"}]}}}"));
   }
 
   private Sample sampleFrom(DateTime timestamp, String platformIdentifier, String sensorType, Object... keyAndValue) {
