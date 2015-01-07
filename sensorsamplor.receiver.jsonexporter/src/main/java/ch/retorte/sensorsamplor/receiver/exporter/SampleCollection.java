@@ -1,9 +1,13 @@
 package ch.retorte.sensorsamplor.receiver.exporter;
 
 import ch.retorte.sensorsamplor.sensor.Sample;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
+import org.json.simple.JSONObject;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -103,17 +107,18 @@ public class SampleCollection {
   }
 
   private void createValuesFor(String node, String sensor, Collection<String> values) {
-
+    Map<String, List<SampleTuple>> valuesMap = getSensor(node, sensor);
+    for (String v : values) {
+      valuesMap.put(v, Lists.<SampleTuple>newArrayList());
+    }
   }
-
 
   private void addDataOf(Sample sample) {
-
+    Map<String, List<SampleTuple>> sensor = getSensorFor(sample);
+    for (Map.Entry<String, Serializable> e : sample.getData().entrySet()) {
+      sensor.get(e.getKey()).add(new SampleTuple(sample.getTimestamp(), e.getValue()));
+    }
   }
-
-
-
-
 
   private SampleTuple from(DateTime timestamp, Object value) {
     return new SampleTuple(timestamp, value);
@@ -130,15 +135,25 @@ public class SampleCollection {
   }
 
   public String toJSON() {
+    JSONObject result = new JSONObject();
 
-//    JSONObject jsonObject = new JSONObject();
+    for (Map.Entry<String, Map<String, Map<String, List<SampleTuple>>>> platform : data.entrySet()) {
+      JSONObject sensor = new JSONObject();
+      for () {
+
+      }
+
+
+      result.put(platform.getKey(), sensor);
+    }
+
+
 //    for (Map.Entry<String, Serializable> e : data.entrySet()) {
 //      jsonObject.put(e.getKey(), e.getValue());
 //    }
 //    String output = jsonObject.toJSONString();
 
-    return null;
+    return result.toJSONString();
   }
-
 
 }

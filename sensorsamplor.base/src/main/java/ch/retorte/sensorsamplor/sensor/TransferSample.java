@@ -1,5 +1,6 @@
 package ch.retorte.sensorsamplor.sensor;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.joda.time.DateTime;
 import org.json.simple.JSONObject;
 
@@ -20,12 +21,17 @@ public class TransferSample implements Sample {
   private static final String FIELD_DELIMITER = " -- ";
 
   private final UUID uuid = randomUUID();
-  private final DateTime timestamp = now();
+  private final DateTime timestamp;
   private final String platformIdentifier;
   private final String sensorType;
   private final Map<String, Serializable> data = newHashMap();
 
   public TransferSample(String platformIdentifier, String sensorType) {
+    this(now(), platformIdentifier, sensorType);
+  }
+
+  public TransferSample(DateTime timestamp, String platformIdentifier, String sensorType) {
+    this.timestamp = timestamp;
     this.platformIdentifier = platformIdentifier;
     this.sensorType = sensorType;
   }
