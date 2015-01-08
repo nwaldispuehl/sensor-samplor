@@ -1,0 +1,53 @@
+<!doctype>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="rickshaw/rickshaw.min.css">
+    <script src="rickshaw/vendor/d3.min.js"></script>
+    <script src="rickshaw/vendor/d3.layout.min.js"></script>
+    <script src="rickshaw/rickshaw.min.js"></script>
+    <script src="jquery/jquery-2.1.3.min.js"></script>
+</head>
+<body>
+<div id="chart"></div>
+
+<script>
+
+
+$.getJSON("./export.json", function(json) {
+    var load = json["myRaspberryPi"]["systemStats"]["load"];
+
+    console.log(load);
+
+    var data = [];
+
+    for (i in load) {
+      console.log(load[i].key)
+    }
+
+    /*
+    jQuery.each(load, function() {
+      data[] = {x : this[0], y : this[1]};
+    });
+    */
+
+    console.log(load);
+
+    data = [{x: 1, y: 1}, {x: 2, y: 2}, {x: 3, y: 3}];
+
+    var graph = new Rickshaw.Graph( {
+        element: document.querySelector("#chart"),
+        width: 580,
+        height: 250,
+        series: [ {
+            color: 'steelblue',
+            data: data
+        } ]
+    } );
+
+    var axes = new Rickshaw.Graph.Axis.Time( { graph: graph } );
+    graph.render();
+
+});
+
+</script>
+</body>
