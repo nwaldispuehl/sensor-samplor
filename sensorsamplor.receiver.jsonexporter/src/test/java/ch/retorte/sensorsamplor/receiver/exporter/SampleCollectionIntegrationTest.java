@@ -48,7 +48,7 @@ public class SampleCollectionIntegrationTest {
   }
 
   @Test
-  public void shouldProvideJsonForMultipleSample() {
+  public void shouldProvideJsonForMultipleSamples() {
     // given
     Sample s1 = sampleFrom(d1, "myPlatform", "mySensor", "myKey", "myValue1");
     Sample s2 = sampleFrom(d2, "myPlatform", "mySensor", "myKey", "myValue2");
