@@ -12,27 +12,34 @@
 
 <script>
 
+console.log("SensorSamplor data viewer");
 
 $.getJSON("./export.json", function(json) {
-    var load = json["myRaspberryPi"]["systemStats"]["load"];
+    var load = json["myNode"]["systemStats"]["load"];
 
-    console.log(load);
+    var sampleData = new Array();
 
-    var data = [];
+    for (key in load) {
+      var value = load[key];
+      console.log(value);
 
-    for (i in load) {
-      console.log(load[i].key)
+
+      sampleData.push({x : 123, y : 456});
+      //for (i in value) {
+        //console.log(value[i]);
+      //}
     }
+
 
     /*
     jQuery.each(load, function() {
-      data[] = {x : this[0], y : this[1]};
+      data[] = {x : this['timestamp'], y : this['value']};
     });
     */
 
-    console.log(load);
+    console.log(sampleData);
 
-    data = [{x: 1, y: 1}, {x: 2, y: 2}, {x: 3, y: 3}];
+        //sampleData = [{x: 1, y: 1}, {x: 2, y: 2}, {x: 3, y: 3}];
 
     var graph = new Rickshaw.Graph( {
         element: document.querySelector("#chart"),
@@ -40,13 +47,12 @@ $.getJSON("./export.json", function(json) {
         height: 250,
         series: [ {
             color: 'steelblue',
-            data: data
+            data: sampleData
         } ]
     } );
 
     var axes = new Rickshaw.Graph.Axis.Time( { graph: graph } );
     graph.render();
-
 });
 
 </script>

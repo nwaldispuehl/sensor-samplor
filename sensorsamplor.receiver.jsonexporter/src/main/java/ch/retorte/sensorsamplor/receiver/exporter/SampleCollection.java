@@ -1,9 +1,11 @@
 package ch.retorte.sensorsamplor.receiver.exporter;
 
 import ch.retorte.sensorsamplor.sensor.Sample;
+import ch.retorte.sensorsamplor.utils.SampleDateFormatter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -134,7 +136,7 @@ public class SampleCollection {
     }
   }
 
-  public String toJSON() {
+  public synchronized String toJSON() {
     JSONObject platformJson = new JSONObject();
 
     for (Map.Entry<String, Map<String, Map<String, List<SampleTuple>>>> platform : data.entrySet()) {
@@ -147,9 +149,7 @@ public class SampleCollection {
           JSONArray valueJson = new JSONArray();
 
           for (SampleTuple sampleTuple : values.getValue()) {
-            JSONObject tuple = new JSONObject();
-            tuple.put(sampleTuple.timestamp, sampleTuple.value);
-            valueJson.add(tuple);
+            valueJson.add(entry(sampleTuple));
           }
 
           valuesJson.put(values.getKey(), valueJson);
@@ -162,6 +162,17 @@ public class SampleCollection {
     }
 
     return platformJson.toJSONString();
+  }
+
+  private JSONObject entry(SampleTuple sampleTuple) {
+    JSONObject entry = new JSONObject();
+    entry.put("timestamp", formatForJson(sampleTuple.timestamp));
+    entry.put("value", sampleTuple.value);
+    return entry;
+  }
+
+  private String formatForJson(DateTime timestamp) {
+    return SampleDateFormatter.formatForJson(timestamp);
   }
 
 }
