@@ -44,7 +44,7 @@ public class SampleCollectionIntegrationTest {
     String json = sut.toJSON();
 
     // then
-    assertThat(json, is("{\"myPlatform\":{\"mySensor\":{\"myKey\":[{\"2015-01-10T10:00:00.000+01:00\":\"myValue\"}]}}}"));
+    assertThat(json, is("{\"myPlatform\":{\"mySensor\":{\"myKey\":[{\"timestamp\":\"2015-01-10T10:00:00.000Z\",\"value\":\"myValue\"}]}}}"));
   }
 
   @Test
@@ -59,7 +59,7 @@ public class SampleCollectionIntegrationTest {
     String json = sut.toJSON();
 
     // then
-    assertThat(json, is("{\"myPlatform\":{\"mySensor\":{\"myKey\":[{\"2015-01-10T10:00:00.000+01:00\":\"myValue1\"},{\"2015-01-10T10:01:00.000+01:00\":\"myValue2\"}]}}}"));
+    assertThat(json, is("{\"myPlatform\":{\"mySensor\":{\"myKey\":[{\"timestamp\":\"2015-01-10T10:00:00.000Z\",\"value\":\"myValue1\"},{\"timestamp\":\"2015-01-10T10:01:00.000Z\",\"value\":\"myValue2\"}]}}}"));
   }
 
   private Sample sampleFrom(DateTime timestamp, String platformIdentifier, String sensorType, Object... keyAndValue) {
