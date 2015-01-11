@@ -13,13 +13,13 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
- * Produces an appropriate temperature/humidity sensor. If that goes wrong, a dummy sensor is created.
+ * Produces an appropriate temperature/humidity sensor. If that goes wrong (that is, if the respective library is not present on this system), a dummy sensor is created which produces random data.
  */
 public class TemperatureHumiditySensorFactory implements SensorFactory {
 
-  private final Logger log = LoggerFactory.getLogger(TemperatureHumiditySensorFactory.class);
-
   private static final String GPIO_DATA_PIN = "sensorsamplor.sensor.temperature.gpio_data_pin";
+
+  private final Logger log = LoggerFactory.getLogger(TemperatureHumiditySensorFactory.class);
 
   private int gpioPin;
 
