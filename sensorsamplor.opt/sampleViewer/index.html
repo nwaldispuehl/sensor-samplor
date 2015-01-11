@@ -1,59 +1,151 @@
 <!doctype>
 <head>
     <meta charset="utf-8">
+    <title>SensorSamplor sample viewer</title>
+
     <link rel="stylesheet" href="rickshaw/rickshaw.min.css">
+    <link rel="stylesheet" href="css/sampleViewer.css">
+
     <script src="rickshaw/vendor/d3.min.js"></script>
     <script src="rickshaw/vendor/d3.layout.min.js"></script>
     <script src="rickshaw/rickshaw.min.js"></script>
     <script src="jquery/jquery-2.1.3.min.js"></script>
 </head>
 <body>
-<div id="chart"></div>
+
+<h1 class="page_title">SensorSamplor Nodes</h1>
+<div class="download_link"><a href="export.json">Download data</a></div>
+<div class="clear"></div>
+
+<div id="nodes">
+</div>
+
+<div class="node_blueprint" style="display:none;">
+    <div class="node">
+        <h2>Nodename</h2>
+        <div class="sensors"></div>
+        <div class="clear"></div>
+    </div>
+</div>
+
+<div class="sensor_blueprint" style="display:none;">
+    <div class="sensor">
+        <h3>Sensorname</h3>
+        <div class="charts"></div>
+        <div class="clear"></div>
+    </div>
+</div>
+
+<div class="chart_blueprint" style="display:none;">
+    <div class="sensor_value">
+        <h4 class="chart_title">Chartname</h4>
+        <div class="chart_latest_value_container">Latest value: <span class="chart_latest_value"></span></div>
+        <div class="clear"></div>
+        <div class="left_axis"></div>
+        <div class="chart"></div>
+    </div>
+</div>
 
 <script>
 
 console.log("SensorSamplor data viewer");
 
-$.getJSON("./export.json", function(json) {
-    var load = json["myNode"]["systemStats"]["load"];
+$.getJSON("./export.json", function(nodesData) {
 
-    var sampleData = new Array();
+    for (nodeData in nodesData) {
+        console.log("Adding node: " + nodeData);
+        var n = createNodeWith(nodeData);
 
-    for (key in load) {
-      var value = load[key];
-      console.log(value);
+        var sensorsData = nodesData[nodeData];
+        for (sensorData in sensorsData) {
+            console.log("Adding sensor: " + sensorData);
+            var s = createSensorWith(nodeData, sensorData);
 
-
-      sampleData.push({x : 123, y : 456});
-      //for (i in value) {
-        //console.log(value[i]);
-      //}
+            var valuesData = sensorsData[sensorData];
+            for (valueData in valuesData) {
+                var c = createChartWith(nodeData, sensorData, valueData, valuesData[valueData]);
+                s.find(".charts").append(c.html());
+            }
+            n.find(".sensors").append(s.html());
+        }
+        $("#nodes").append(n.html());
     }
+});
 
 
-    /*
-    jQuery.each(load, function() {
-      data[] = {x : this['timestamp'], y : this['value']};
-    });
-    */
+function createGraphFor(element, axis, name, data) {
 
-    console.log(sampleData);
 
-        //sampleData = [{x: 1, y: 1}, {x: 2, y: 2}, {x: 3, y: 3}];
 
     var graph = new Rickshaw.Graph( {
-        element: document.querySelector("#chart"),
-        width: 580,
-        height: 250,
-        series: [ {
+        element: element,
+        renderer: 'line',
+        stack:false,
+        padding: {top: 0.02, left: 0.02, right: 0.02, bottom: 0.02},
+        series: [{
             color: 'steelblue',
-            data: sampleData
-        } ]
+            data: data,
+            name: name
+        }]
     } );
 
-    var axes = new Rickshaw.Graph.Axis.Time( { graph: graph } );
+    var axis = new Rickshaw.Graph.Axis.Time( { graph: graph } );
+    axis.render();
+
+    new Rickshaw.Graph.HoverDetail( {
+        graph: graph
+//        formatter: function(series, x, y) {
+//            var date = '<span class="date">' + new Date(x).toUTCString() + '</span>';
+//            var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
+//            var content = swatch + series.name + ": " + parseInt(y) + '<br>' + date;
+//            return content;
+//        }
+    } );
+
     graph.render();
-});
+
+    var yAxis = new Rickshaw.Graph.Axis.Y({
+        graph: graph,
+        tickFormat: Rickshaw.Fixtures.Number.formatKMBT
+    });
+
+    yAxis.render();
+}
+
+function createNodeWith(nodeName) {
+    var result = $(".node_blueprint").clone();
+    result.find(".node").attr("id", "sensorSamplor-" + nodeName);
+    result.find("h2").text("Node: " + nodeName);
+    return result;
+}
+
+function createSensorWith(nodeName, sensorName) {
+    var result = $(".sensor_blueprint").clone();
+    result.find(".sensor").attr("id", "sensorSamplor-" + nodeName + "-" + sensorName);
+    result.find("h3").text("Sensor: " + sensorName);
+    return result;
+}
+
+function createChartWith(nodeName, sensorName, valueName, valueData) {
+    var result = $(".chart_blueprint").clone();
+    result.find(".sensor_value").attr("id", "sensorSamplor-" + nodeName + "-" + sensorName + "-" + valueName);
+    result.find(".chart").attr("id", "sensorSamplor-" + nodeName + "-" + sensorName + "-" + valueName + "-chart");
+    result.find("h4").text(valueName);
+    result.find(".chart_latest_value").html("<b>" + valueData[valueData.length-1]['value'] + "</b>");
+    var data = prepareDataForChart(valueData);
+    createGraphFor(result.find(".chart")[0], result.find(".left_axis")[0], valueName, data);
+    return result;
+}
+
+function prepareDataForChart(valueData) {
+    var outputSamples = new Array();
+        for (key in valueData) {
+            var value = valueData[key];
+            var date = Date.parse(value['timestamp']);
+            outputSamples.push({x : date, y : value['value']});
+        }
+    return outputSamples;
+}
 
 </script>
 </body>

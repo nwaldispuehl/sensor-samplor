@@ -1,0 +1,66 @@
+@import url(http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700,300italic);
+
+* {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    font-family: 'Open Sans Condensed', sans-serif;
+}
+
+body {
+    margin: .5cm;
+}
+
+.page_title {
+    float:left;
+}
+
+.download_link {
+    float: right;
+}
+
+.node {
+    float: left;
+    margin-bottom: .4cm;
+}
+
+.sensor {
+    float: left;
+    margin-bottom: .4cm;
+    margin-right: .4cm;
+
+    border-top: 2px solid #aaaaaa;
+}
+
+.sensor_value {
+    float: left;
+    width: 520px;
+
+    border-top: 1px solid #cccccc;
+
+    margin-bottom: .4cm;
+    margin-right: .4cm;
+}
+
+.chart_title {
+    float: left;
+}
+
+.chart_latest_value_container {
+    float: right;
+}
+
+.chart {
+    padding-top:.4cm;
+    width: inherit;
+    height: 240px;
+}
+
+.clear {
+    clear: both;
+}
+
+.rickshaw_graph .detail .x_label { display: none }
+.rickshaw_graph .detail .item { line-height: 1.4; padding: 0.5em }
+.detail_swatch { float: right; display: inline-block; width: 10px; height: 10px; margin: 0 4px 0 0 }
+.rickshaw_graph .detail .date { color: #a0a0a0 }
