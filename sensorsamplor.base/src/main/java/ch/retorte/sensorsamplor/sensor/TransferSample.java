@@ -1,6 +1,5 @@
 package ch.retorte.sensorsamplor.sensor;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.joda.time.DateTime;
 import org.json.simple.JSONObject;
 
@@ -81,5 +80,23 @@ public class TransferSample implements Sample {
   @Override
   public Map<String, Serializable> getData() {
     return data;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof TransferSample) {
+      return uuid.equals(((TransferSample) obj).uuid);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return uuid.hashCode();
+  }
+
+  @Override
+  public int compareTo(Sample o) {
+    return timestamp.compareTo(o.getTimestamp());
   }
 }

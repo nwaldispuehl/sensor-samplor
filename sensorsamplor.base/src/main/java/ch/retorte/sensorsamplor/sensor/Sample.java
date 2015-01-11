@@ -9,7 +9,7 @@ import java.util.UUID;
 /**
  * A single data item.
  */
-public interface Sample extends Serializable {
+public interface Sample extends Serializable, Comparable<Sample> {
 
   /**
    * Provides a unique id for this sample.

@@ -30,6 +30,8 @@ public class JsonExporterSampleReceiver implements SampleReceiver {
 
   private static DateTime lastExport = now();
 
+  private static boolean firstRun = true;
+
   private String outputFile;
 
   /* Keeps the last n sensor items for every node and sensor where n is at most maximumEntriesPerSensor. */
@@ -46,10 +48,21 @@ public class JsonExporterSampleReceiver implements SampleReceiver {
 
   @Override
   public void processSample(List<Sample> sampleBuffer, Sample sample) {
+    importCompleteBufferIfFirstRun(sampleBuffer);
     addToCollection(sample);
     if (enoughTimeHasPassed()) {
       exportCollectionWithErrorHandling();
     }
+  }
+
+  private synchronized void importCompleteBufferIfFirstRun(List<Sample> sampleBuffer) {
+    if (firstRun) {
+      for (Sample s : sampleBuffer) {
+        sampleCollection.addSample(s);
+      }
+      firstRun = false;
+    }
+
   }
 
   private void addToCollection(Sample sample) {

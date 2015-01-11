@@ -10,10 +10,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Maps.newConcurrentMap;
 
@@ -25,7 +22,7 @@ public class SampleCollection {
   private int maximumEntriesPerSensor;
 
   /* Map of nodes, of sensors, of keys, list of value tuples.  */
-  private Map<String, Map<String, Map<String, List<SampleTuple>>>> data = newConcurrentMap();
+  private Map<String, Map<String, Map<String, TreeMap<SampleTuple, String>>>> data = newConcurrentMap();
 
   public SampleCollection(int maximumEntriesPerSensor) {
     this.maximumEntriesPerSensor = maximumEntriesPerSensor;
@@ -59,16 +56,16 @@ public class SampleCollection {
     return getNode(node) != null;
   }
 
-  private Map<String, Map<String, List<SampleTuple>>> getNode(Sample sample) {
+  private Map<String, Map<String, TreeMap<SampleTuple, String>>> getNode(Sample sample) {
     return getNode(sample.getPlatformIdentifier());
   }
 
-  private Map<String, Map<String, List<SampleTuple>>> getNode(String node) {
+  private Map<String, Map<String, TreeMap<SampleTuple, String>>> getNode(String node) {
     return data.get(node);
   }
 
   private void createNodeFor(Sample sample) {
-    data.put(sample.getPlatformIdentifier(), Maps.<String, Map<String, List<SampleTuple>>>newConcurrentMap());
+    data.put(sample.getPlatformIdentifier(), Maps.<String, Map<String, TreeMap<SampleTuple, String>>>newConcurrentMap());
   }
 
   private boolean hasSensor(Sample sample) {
@@ -79,11 +76,11 @@ public class SampleCollection {
     return getSensor(node, sensor) != null;
   }
 
-  private Map<String, List<SampleTuple>> getSensorFor(Sample sample) {
+  private Map<String, TreeMap<SampleTuple, String>> getSensorFor(Sample sample) {
     return getSensor(sample.getPlatformIdentifier(), sample.getSensorType());
   }
 
-  private Map<String, List<SampleTuple>> getSensor(String node, String sensor) {
+  private Map<String, TreeMap<SampleTuple, String>> getSensor(String node, String sensor) {
     return getNode(node).get(sensor);
   }
 
@@ -101,7 +98,7 @@ public class SampleCollection {
   }
 
   private void createSensorFor(Sample sample) {
-    getNode(sample).put(sample.getSensorType(), Maps.<String, List<SampleTuple>>newConcurrentMap());
+    getNode(sample).put(sample.getSensorType(), Maps.<String, TreeMap<SampleTuple, String>>newConcurrentMap());
   }
 
   private void createValuesFor(Sample sample) {
@@ -109,46 +106,70 @@ public class SampleCollection {
   }
 
   private void createValuesFor(String node, String sensor, Collection<String> values) {
-    Map<String, List<SampleTuple>> valuesMap = getSensor(node, sensor);
+    Map<String, TreeMap<SampleTuple, String>> valuesMap = getSensor(node, sensor);
     for (String v : values) {
-      valuesMap.put(v, Lists.<SampleTuple>newArrayList());
+      valuesMap.put(v, Maps.<SampleTuple, String>newTreeMap());
     }
   }
 
   private void addDataOf(Sample sample) {
-    Map<String, List<SampleTuple>> sensor = getSensorFor(sample);
+    Map<String, TreeMap<SampleTuple, String>> sensor = getSensorFor(sample);
     for (Map.Entry<String, Serializable> e : sample.getData().entrySet()) {
-      sensor.get(e.getKey()).add(new SampleTuple(sample.getTimestamp(), e.getValue()));
+      TreeMap<SampleTuple, String> sampleTupleStringTreeMap = sensor.get(e.getKey());
+      while(maximumEntriesPerSensor <= sampleTupleStringTreeMap.size()) {
+        sampleTupleStringTreeMap.pollFirstEntry();
+      }
+      sampleTupleStringTreeMap.put(from(sample.getId(), sample.getTimestamp(), e.getValue()), sample.getId().toString());
     }
   }
 
-  private SampleTuple from(DateTime timestamp, Object value) {
-    return new SampleTuple(timestamp, value);
+  private SampleTuple from(UUID uuid, DateTime timestamp, Object value) {
+    return new SampleTuple(uuid, timestamp, value);
   }
 
-  private class SampleTuple {
+  private class SampleTuple implements Comparable<SampleTuple> {
     public DateTime timestamp;
     public Object value;
+    public UUID uuid;
 
-    SampleTuple(DateTime timestamp, Object value) {
+    SampleTuple(UUID uuid, DateTime timestamp, Object value) {
+      this.uuid = uuid;
       this.timestamp = timestamp;
       this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj instanceof SampleTuple) {
+        return uuid.equals(((SampleTuple) obj).uuid);
+      }
+      return false;
+    }
+
+    @Override
+    public int hashCode() {
+      return uuid.hashCode();
+    }
+
+    @Override
+    public int compareTo(SampleTuple o) {
+      return timestamp.compareTo(o.timestamp);
     }
   }
 
   public synchronized String toJSON() {
     JSONObject platformJson = new JSONObject();
 
-    for (Map.Entry<String, Map<String, Map<String, List<SampleTuple>>>> platform : data.entrySet()) {
+    for (Map.Entry<String, Map<String, Map<String, TreeMap<SampleTuple, String>>>> platform : data.entrySet()) {
       JSONObject sensorJson = new JSONObject();
 
-      for (Map.Entry<String, Map<String, List<SampleTuple>>> sensor : platform.getValue().entrySet()) {
+      for (Map.Entry<String, Map<String, TreeMap<SampleTuple, String>>> sensor : platform.getValue().entrySet()) {
         JSONObject valuesJson = new JSONObject();
 
-        for (Map.Entry<String, List<SampleTuple>> values : sensor.getValue().entrySet()) {
+        for (Map.Entry<String, TreeMap<SampleTuple, String>> values : sensor.getValue().entrySet()) {
           JSONArray valueJson = new JSONArray();
 
-          for (SampleTuple sampleTuple : values.getValue()) {
+          for (SampleTuple sampleTuple : values.getValue().keySet()) {
             valueJson.add(entry(sampleTuple));
           }
 
