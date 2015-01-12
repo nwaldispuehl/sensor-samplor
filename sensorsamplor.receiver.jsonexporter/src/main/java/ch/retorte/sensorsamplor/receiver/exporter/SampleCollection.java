@@ -3,10 +3,8 @@ package ch.retorte.sensorsamplor.receiver.exporter;
 import ch.retorte.sensorsamplor.sensor.Sample;
 import ch.retorte.sensorsamplor.utils.SampleDateFormatter;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -120,10 +118,7 @@ public class SampleCollection {
 
   private void addSampleToSensor(Sample sample, Map<String, TreeMap<SampleTuple, String>> sensor) {
     for (Map.Entry<String, Serializable> e : sample.getData().entrySet()) {
-      TreeMap<SampleTuple, String> sampleTupleStringTreeMap = sensor.get(e.getKey());
-
-      addSampleToTuples(sample, sampleTupleStringTreeMap, e.getValue());
-
+      addSampleToTuples(sample, sensor.get(e.getKey()), e.getValue());
     }
   }
 
