@@ -20,7 +20,7 @@ public class FileSampleReceiverFactoryTest {
   public void shouldProduceFileSampleReceiver() {
     // given
     Map<String, String> config = newHashMap();
-    config.put(LOGGING_DIRECTORY, "abc");
+    config.put(LOGGING_DIRECTORY, "/tmp/abc");
     sut.setConfigurationValues(config);
 
     // when

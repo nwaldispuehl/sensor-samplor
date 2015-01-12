@@ -44,6 +44,7 @@ public class JsonExporterSampleReceiver implements SampleReceiver {
 
   private void initializeSampleCollectionWith(int maximumEntriesPerSensor) {
     sampleCollection = new SampleCollection(maximumEntriesPerSensor);
+    log.debug("Initialized JSON sample collection with {} maximum entries per sensor.", maximumEntriesPerSensor);
   }
 
   @Override

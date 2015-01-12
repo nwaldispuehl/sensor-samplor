@@ -7,6 +7,8 @@ import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.*;
@@ -17,6 +19,8 @@ import static com.google.common.collect.Maps.newConcurrentMap;
  * Holds a series of samples.
  */
 public class SampleCollection {
+
+  private final Logger log = LoggerFactory.getLogger(SampleCollection.class);
 
   private int maximumEntriesPerSensor;
 
@@ -102,6 +106,7 @@ public class SampleCollection {
 
   private void createValuesFor(Sample sample) {
     createValuesFor(sample.getPlatformIdentifier(), sample.getSensorType(), sample.getData().keySet());
+    log.debug("Added value structure {} for: {} on {}.", sample.getData().keySet(), sample.getSensorType(), sample.getPlatformIdentifier());
   }
 
   private void createValuesFor(String node, String sensor, Collection<String> values) {
@@ -119,6 +124,8 @@ public class SampleCollection {
   private void addSampleToSensor(Sample sample, Map<String, TreeMap<SampleTuple, String>> sensor) {
     for (Map.Entry<String, Serializable> e : sample.getData().entrySet()) {
       addSampleToTuples(sample, sensor.get(e.getKey()), e.getValue());
+      log.debug("Added data {} to {} on {} on {}.", e.getValue(), e.getKey(), sample.getSensorType(), sample.getPlatformIdentifier());
+      log.debug("Number of tuples in {} in {}: {}.", e.getKey(), sample.getSensorType(), sensor.get(e.getKey()).size());
     }
   }
 
