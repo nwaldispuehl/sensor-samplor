@@ -2,6 +2,7 @@ package ch.retorte.sensorsamplor.receiver.exporter;
 
 import ch.retorte.sensorsamplor.sensor.Sample;
 import ch.retorte.sensorsamplor.utils.SampleDateFormatter;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
@@ -21,7 +22,7 @@ public class SampleCollection {
 
   private int maximumEntriesPerSensor;
 
-  /* Map of nodes, of sensors, of keys, list of value tuples.  */
+  /* Map of nodes, of sensors, of keys, tree map of value tuples.  */
   private Map<String, Map<String, Map<String, TreeMap<SampleTuple, String>>>> data = newConcurrentMap();
 
   public SampleCollection(int maximumEntriesPerSensor) {
@@ -114,26 +115,42 @@ public class SampleCollection {
 
   private void addDataOf(Sample sample) {
     Map<String, TreeMap<SampleTuple, String>> sensor = getSensorFor(sample);
+    addSampleToSensor(sample, sensor);
+  }
+
+  private void addSampleToSensor(Sample sample, Map<String, TreeMap<SampleTuple, String>> sensor) {
     for (Map.Entry<String, Serializable> e : sample.getData().entrySet()) {
       TreeMap<SampleTuple, String> sampleTupleStringTreeMap = sensor.get(e.getKey());
-      while(maximumEntriesPerSensor <= sampleTupleStringTreeMap.size()) {
-        sampleTupleStringTreeMap.pollFirstEntry();
-      }
-      sampleTupleStringTreeMap.put(from(sample.getId(), sample.getTimestamp(), e.getValue()), sample.getId().toString());
+
+      addSampleToTuples(sample, sampleTupleStringTreeMap, e.getValue());
+
     }
   }
 
-  private SampleTuple from(UUID uuid, DateTime timestamp, Object value) {
-    return new SampleTuple(uuid, timestamp, value);
+  @VisibleForTesting
+  void addSampleToTuples(Sample sample, TreeMap<SampleTuple, String> tuples, Serializable value) {
+    while(maximumEntriesPerSensor <= tuples.size()) {
+      tuples.pollFirstEntry();
+    }
+    tuples.put(from(sample, value), null);
   }
 
-  private class SampleTuple implements Comparable<SampleTuple> {
+  private SampleTuple from(Sample sample, Serializable serializable) {
+    return from(sample.getId().toString(), sample.getTimestamp(), serializable);
+  }
+
+  private SampleTuple from(String id, DateTime timestamp, Object value) {
+    return new SampleTuple(id, timestamp, value);
+  }
+
+  @VisibleForTesting
+  class SampleTuple implements Comparable<SampleTuple> {
     public DateTime timestamp;
     public Object value;
-    public UUID uuid;
+    public String id;
 
-    SampleTuple(UUID uuid, DateTime timestamp, Object value) {
-      this.uuid = uuid;
+    SampleTuple(String id, DateTime timestamp, Object value) {
+      this.id = id;
       this.timestamp = timestamp;
       this.value = value;
     }
@@ -141,14 +158,14 @@ public class SampleCollection {
     @Override
     public boolean equals(Object obj) {
       if (obj instanceof SampleTuple) {
-        return uuid.equals(((SampleTuple) obj).uuid);
+        return id.equals(((SampleTuple) obj).id);
       }
       return false;
     }
 
     @Override
     public int hashCode() {
-      return uuid.hashCode();
+      return id.hashCode();
     }
 
     @Override
