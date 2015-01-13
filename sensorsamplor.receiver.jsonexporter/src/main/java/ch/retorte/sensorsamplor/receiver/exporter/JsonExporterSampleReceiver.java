@@ -51,32 +51,38 @@ public class JsonExporterSampleReceiver implements SampleReceiver {
   public void processSample(List<Sample> sampleBuffer, Sample sample) {
     importCompleteBufferIfFirstRun(sampleBuffer);
     addToCollection(sample);
-    if (enoughTimeHasPassed()) {
-      exportCollectionWithErrorHandling();
-    }
+    conditionallyCreateExport();
   }
 
   private synchronized void importCompleteBufferIfFirstRun(List<Sample> sampleBuffer) {
     if (firstRun) {
+      log.debug("First run, adding all {} items already in list.", sampleBuffer.size());
       for (Sample s : sampleBuffer) {
         sampleCollection.addSample(s);
       }
       firstRun = false;
     }
-
   }
 
   private void addToCollection(Sample sample) {
+    log.debug("Adding sample ({}) to collection.", sample.getId());
     sampleCollection.addSample(sample);
   }
 
-  private boolean enoughTimeHasPassed() {
+  private synchronized void conditionallyCreateExport() {
+    if (enoughTimeHasPassed()) {
+      log.debug("Exporting colletion to json file.");
+      exportCollectionWithErrorHandling();
+    }
+  }
+
+  private synchronized boolean enoughTimeHasPassed() {
     return areAtLeastSecondsPassedBetween(getLastExport(), now(), EXPORT_INTERVAL_SECONDS);
   }
 
   @VisibleForTesting
   boolean areAtLeastSecondsPassedBetween(DateTime t0, DateTime t1, int seconds) {
-    return 0 < t0.plusSeconds(seconds).compareTo(t1);
+    return 0 <= t1.compareTo(t0.plusSeconds(seconds));
   }
 
   private synchronized DateTime getLastExport() {
@@ -86,10 +92,16 @@ public class JsonExporterSampleReceiver implements SampleReceiver {
   private void exportCollectionWithErrorHandling() {
     try {
       exportCollection();
+      updateLastExportTimestamp();
     }
     catch (IOException e) {
       log.error("Was not able to export JSON to path: {} because of: {}.", outputFile, e.getMessage());
     }
+  }
+
+  private synchronized void updateLastExportTimestamp() {
+    lastExport = now();
+    log.debug("Updated last export time stamp to: {}.", lastExport);
   }
 
   private void exportCollection() throws IOException {
