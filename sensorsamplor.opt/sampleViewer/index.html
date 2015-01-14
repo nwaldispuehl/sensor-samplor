@@ -51,8 +51,11 @@
 console.log("SensorSamplor data viewer");
 
 $.getJSON("./export.json", function(nodesData) {
+    processData(nodesData);
+});
 
-    for (nodeData in nodesData) {
+function processData(nodesData) {
+  for (nodeData in nodesData) {
         console.log("Adding node: " + nodeData);
         var n = createNodeWith(nodeData);
 
@@ -62,20 +65,19 @@ $.getJSON("./export.json", function(nodesData) {
             var s = createSensorWith(nodeData, sensorData);
 
             var valuesData = sensorsData[sensorData];
+
             for (valueData in valuesData) {
-                var c = createChartWith(nodeData, sensorData, valueData, valuesData[valueData]);
-                s.find(".charts").append(c.html());
+              var c = createChartWith(nodeData, sensorData, valueData, valuesData[valueData]);
+              s.find(".charts").append(c.html());
             }
             n.find(".sensors").append(s.html());
         }
         $("#nodes").append(n.html());
     }
-});
+}
 
 
 function createGraphFor(element, axis, name, data) {
-
-
 
     var graph = new Rickshaw.Graph( {
         element: element,
@@ -89,27 +91,25 @@ function createGraphFor(element, axis, name, data) {
         }]
     } );
 
-    var axis = new Rickshaw.Graph.Axis.Time( { graph: graph } );
-    axis.render();
+    new Rickshaw.Graph.Axis.Time( { graph: graph } );
 
     new Rickshaw.Graph.HoverDetail( {
-        graph: graph
-//        formatter: function(series, x, y) {
-//            var date = '<span class="date">' + new Date(x).toUTCString() + '</span>';
-//            var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
-//            var content = swatch + series.name + ": " + parseInt(y) + '<br>' + date;
-//            return content;
-//        }
+        graph: graph,
+        formatter: function(series, x, y) {
+            var date = '<span class="date">' + new Date(x).toUTCString() + '</span>';
+            var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
+            var content = swatch + series.name + ": " + parseInt(y) + '<br>' + date;
+            return content;
+        }
     } );
 
-    graph.render();
-
-    var yAxis = new Rickshaw.Graph.Axis.Y({
+    new Rickshaw.Graph.Axis.Y({
         graph: graph,
         tickFormat: Rickshaw.Fixtures.Number.formatKMBT
     });
 
-    yAxis.render();
+
+    graph.render();
 }
 
 function createNodeWith(nodeName) {
