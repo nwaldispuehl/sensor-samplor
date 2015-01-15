@@ -91,7 +91,10 @@ function createGraphFor(element, axis, name, data) {
         }]
     } );
 
-    new Rickshaw.Graph.Axis.Time( { graph: graph } );
+    new Rickshaw.Graph.Axis.Time( {
+        graph: graph,
+        timeFixture: new Rickshaw.Fixtures.Time.Local()
+    } );
 
     new Rickshaw.Graph.HoverDetail( {
         graph: graph,
