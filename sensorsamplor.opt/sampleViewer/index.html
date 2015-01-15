@@ -141,7 +141,7 @@ function prepareDataForChart(valueData) {
     var outputSamples = new Array();
         for (key in valueData) {
             var value = valueData[key];
-            var date = Date.parse(value['timestamp']);
+            var date = Date.parse(value['timestamp']) / 1000; // Date creates milliseconds, but we'd rather have seconds.
             outputSamples.push({x : date, y : value['value']});
         }
     return outputSamples;
