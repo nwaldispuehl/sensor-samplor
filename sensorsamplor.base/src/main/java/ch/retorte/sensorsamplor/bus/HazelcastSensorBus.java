@@ -46,7 +46,11 @@ public class HazelcastSensorBus implements SensorBus {
   }
 
   private Config createConfigWith(String nodeName, String username, String password, List<String> networkInterfaces, List<String> remoteMembers) {
-    Config config = new Config(nodeName).setProperty("hazelcast.logging.type", "none");
+    Config config = new Config(nodeName)
+        .setProperty("hazelcast.logging.type", "slf4j")
+        .setProperty("hazelcast.max.operation.timeout", "30")
+        .setProperty("hazelcast.redo.giveup.threshold", "30");
+
     config.getGroupConfig().setName(username).setPassword(password);
     setNetworkConfigWith(config.getNetworkConfig(), networkInterfaces, remoteMembers);
     return config;
@@ -83,9 +87,29 @@ public class HazelcastSensorBus implements SensorBus {
   }
 
   @Override
-  public synchronized void send(Sample sample) {
-    log.debug("Sending sample: {}.", sample.getId());
-    sampleBuffer.put(sample);
+  public void send(Sample sample) {
+    log.debug("Attempting to submit sample: {}.", sample.getId());
+    new Thread(new SampleSender(sample)).start();
+  }
+
+  private class SampleSender implements Runnable {
+
+    private Sample sample;
+
+    SampleSender(Sample sample) {
+      this.sample = sample;
+    }
+
+    @Override
+    public void run() {
+      try {
+        sampleBuffer.put(sample);
+        log.debug("Submitted sample: {}.", sample.getId());
+      }
+      catch (RuntimeException e) {
+        log.error("Failed to add sample to sampleBuffer due to: {}.", e);
+      }
+    }
   }
 
   @Override

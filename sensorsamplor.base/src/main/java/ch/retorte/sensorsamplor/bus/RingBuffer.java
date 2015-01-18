@@ -46,7 +46,7 @@ public class RingBuffer<T extends Serializable> implements Serializable {
     return bufferSize;
   }
 
-  void put(T t) {
+  synchronized void put(T t) {
     putWithLoggingAndChecks(t);
   }
 
