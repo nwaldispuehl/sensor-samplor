@@ -3,10 +3,10 @@
         <file>/var/log/sensor-samplor/sensor-samplor.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover -->
-            <fileNamePattern>sensor-samplor.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>/var/log/sensor-samplor/sensor-samplor.%d{yyyy-MM-dd}.log</fileNamePattern>
 
             <!-- keep 30 days' worth of history -->
-            <!--<maxHistory>30</maxHistory>-->
+            <maxHistory>60</maxHistory>
         </rollingPolicy>
 
         <encoder>
