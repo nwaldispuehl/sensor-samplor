@@ -58,15 +58,21 @@ public class JsonExporterSampleReceiver implements SampleReceiver {
     if (firstRun) {
       log.debug("First run, adding all {} items already in list.", sampleBuffer.size());
       for (Sample s : sampleBuffer) {
-        sampleCollection.addSample(s);
+        addToCollection(s);
       }
       firstRun = false;
     }
   }
 
   private void addToCollection(Sample sample) {
-    log.debug("Adding sample ({}) to collection.", sample.getId());
-    sampleCollection.addSample(sample);
+    if (isNoError(sample)) {
+      log.debug("Adding sample ({}) to collection.", sample.getId());
+      sampleCollection.addSample(sample);
+    }
+  }
+
+  private boolean isNoError(Sample sample) {
+    return !(sample instanceof ErrorSample);
   }
 
   private synchronized void conditionallyCreateExport() {
