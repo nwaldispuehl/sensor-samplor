@@ -49,13 +49,8 @@ public class HazelcastSensorBus implements SensorBus {
         .setProperty("hazelcast.redo.giveup.threshold", "30");
 
     config.getGroupConfig().setName(username).setPassword(password);
-    setSerializationConfigWith(config.getSerializationConfig());
     setNetworkConfigWith(config.getNetworkConfig(), networkInterfaces, remoteMembers);
     return config;
-  }
-
-  private void setSerializationConfigWith(SerializationConfig serializationConfig) {
-    serializationConfig.setEnableCompression(true);
   }
 
   private void setNetworkConfigWith(NetworkConfig networkConfig, List<String> networkInterfaces, List<String> remoteMembers) {
