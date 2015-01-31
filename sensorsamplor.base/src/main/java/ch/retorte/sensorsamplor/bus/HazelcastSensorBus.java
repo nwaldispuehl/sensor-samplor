@@ -1,10 +1,7 @@
 package ch.retorte.sensorsamplor.bus;
 
 import ch.retorte.sensorsamplor.sensor.Sample;
-import com.hazelcast.config.Config;
-import com.hazelcast.config.InterfacesConfig;
-import com.hazelcast.config.NetworkConfig;
-import com.hazelcast.config.TcpIpConfig;
+import com.hazelcast.config.*;
 import com.hazelcast.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,8 +49,13 @@ public class HazelcastSensorBus implements SensorBus {
         .setProperty("hazelcast.redo.giveup.threshold", "30");
 
     config.getGroupConfig().setName(username).setPassword(password);
+    setSerializationConfigWith(config.getSerializationConfig());
     setNetworkConfigWith(config.getNetworkConfig(), networkInterfaces, remoteMembers);
     return config;
+  }
+
+  private void setSerializationConfigWith(SerializationConfig serializationConfig) {
+    serializationConfig.setEnableCompression(true);
   }
 
   private void setNetworkConfigWith(NetworkConfig networkConfig, List<String> networkInterfaces, List<String> remoteMembers) {
