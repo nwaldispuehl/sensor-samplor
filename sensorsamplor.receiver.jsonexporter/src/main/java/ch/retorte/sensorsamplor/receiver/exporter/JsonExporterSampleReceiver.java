@@ -3,6 +3,7 @@ package ch.retorte.sensorsamplor.receiver.exporter;
 import ch.retorte.sensorsamplor.receiver.SampleReceiver;
 import ch.retorte.sensorsamplor.sensor.ErrorSample;
 import ch.retorte.sensorsamplor.sensor.Sample;
+import ch.retorte.sensorsamplor.sensor.SamplePatternChecker;
 import com.google.common.annotations.VisibleForTesting;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -33,12 +34,15 @@ public class JsonExporterSampleReceiver implements SampleReceiver {
   private static boolean firstRun = true;
 
   private String outputFile;
+  private SamplePatternChecker samplePatternChecker;
 
   /* Keeps the last n sensor items for every node and sensor where n is at most maximumEntriesPerSensor. */
   private static SampleCollection sampleCollection;
 
-  public JsonExporterSampleReceiver(String outputFile, int maximumEntriesPerSensor) {
+  public JsonExporterSampleReceiver(String outputFile, int maximumEntriesPerSensor, String sensorPatternString, String platformPatternString) {
     this.outputFile = outputFile;
+    samplePatternChecker = new SamplePatternChecker(sensorPatternString, platformPatternString);
+
     initializeSampleCollectionWith(maximumEntriesPerSensor);
   }
 
@@ -65,7 +69,8 @@ public class JsonExporterSampleReceiver implements SampleReceiver {
   }
 
   private void addToCollection(Sample sample) {
-    if (isNoError(sample)) {
+    /* We are filtering again with the sensor and platform pattern since although the receiver passes only filtered samples, we have access to the complete, unfiltered list. */
+    if (isNoError(sample) && samplePatternChecker.matches(sample)) {
       log.debug("Adding sample ({}) to collection.", sample.getId());
       sampleCollection.addSample(sample);
     }

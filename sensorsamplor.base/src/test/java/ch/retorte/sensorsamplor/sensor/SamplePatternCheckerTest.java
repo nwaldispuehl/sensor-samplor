@@ -1,24 +1,18 @@
-package ch.retorte.sensorsamplor.receiver;
+package ch.retorte.sensorsamplor.sensor;
 
-import ch.retorte.sensorsamplor.bus.SensorBus;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
 /**
- * Unit tests for the SampleReceiverManager.
+ * Unit test for the SamplePatternChecker.
  */
-public class SampleReceiverManagerTest {
+public class SamplePatternCheckerTest {
 
-  private final SensorBus sensorBus = mock(SensorBus.class);
-  private final List<SampleReceiver> receivers = mock(ArrayList.class);
-  private final SampleReceiverManager sut = new SampleReceiverManager(sensorBus, receivers, "", "");
+  SamplePatternChecker sut = new SamplePatternChecker();
 
   @Test
   public void shouldMatchPattern() {

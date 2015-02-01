@@ -4,12 +4,12 @@ import ch.retorte.sensorsamplor.bus.SampleListener;
 import ch.retorte.sensorsamplor.bus.SensorBus;
 import ch.retorte.sensorsamplor.sensor.ErrorSample;
 import ch.retorte.sensorsamplor.sensor.Sample;
+import ch.retorte.sensorsamplor.sensor.SamplePatternChecker;
 import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * Dispatches received samples and decides which samples to filter.
@@ -20,22 +20,17 @@ public class SampleReceiverManager {
 
   private final List<SampleReceiver> receivers;
   private final SensorBus sensorBus;
-  private Pattern sensorPattern;
-  private Pattern platformPattern;
+  private SamplePatternChecker samplePatternChecker;
 
   public SampleReceiverManager(SensorBus sensorBus, List<SampleReceiver> receivers, String sensorPatternString, String platformPatternString) {
     this.receivers = receivers;
     this.sensorBus = sensorBus;
 
-    compilePattern(sensorPatternString, platformPatternString);
+    samplePatternChecker = new SamplePatternChecker(sensorPatternString, platformPatternString);
+
     registerSampleListener();
 
-    log.info("Created sample receiver manager with sensor pattern: {} and platform pattern: {}.", sensorPatternString, platformPatternString);
-  }
-
-  private void compilePattern(String sensorPatternString, String platformPatternString) {
-    sensorPattern = Pattern.compile(sensorPatternString);
-    platformPattern = Pattern.compile(platformPatternString);
+    log.info("Created sample receiver manager with sensor pattern: '{}' and platform pattern: '{}'.", sensorPatternString, platformPatternString);
   }
 
   private void registerSampleListener() {
@@ -49,28 +44,11 @@ public class SampleReceiverManager {
   }
 
   private void processSample(Sample sample) {
-    if (sampleMatches(sample)) {
+    if (samplePatternChecker.matches(sample)) {
       for (SampleReceiver receiver : receivers) {
         new Thread(new ReceiverRunner(sample, receiver)).start();
       }
     }
-  }
-
-  private boolean sampleMatches(Sample sample) {
-    return sensorTypeMatches(sample) && platformIdentifierMatches(sample);
-  }
-
-  private boolean sensorTypeMatches(Sample sample) {
-    return patternMatches(sensorPattern, sample.getSensorType());
-  }
-
-  private boolean platformIdentifierMatches(Sample sample) {
-    return patternMatches(platformPattern, sample.getPlatformIdentifier());
-  }
-
-  @VisibleForTesting
-  boolean patternMatches(Pattern pattern, String stringToMatch) {
-    return pattern.matcher(stringToMatch).matches();
   }
 
   private class ReceiverRunner implements Runnable {
