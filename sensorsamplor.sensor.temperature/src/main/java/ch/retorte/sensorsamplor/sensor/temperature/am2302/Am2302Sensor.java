@@ -33,6 +33,8 @@ public class Am2302Sensor implements Sensor {
 
   private final String platformIdentifier;
   private final int pin;
+  private final double temperatureCorrection;
+  private final double humidityCorrection;
 
   private final Pointer humidity = new Memory(FLOAT_SIZE);
   private final Pointer temperature = new Memory(FLOAT_SIZE);
@@ -53,9 +55,11 @@ public class Am2302Sensor implements Sensor {
     return (Am2302SensorLibrary) Native.loadLibrary(PI_DHT_LIBRARY_NAME, Am2302SensorLibrary.class);
   }
 
-  public Am2302Sensor(String platformIdentifier, int pin) {
+  public Am2302Sensor(String platformIdentifier, int pin, double temperatureCorrection, double humidityCorrection) {
     this.platformIdentifier = platformIdentifier;
     this.pin = pin;
+    this.temperatureCorrection = temperatureCorrection;
+    this.humidityCorrection = humidityCorrection;
     this.sensorLibrary = loadLibrary();
 
     log.info("Created AM2302 sensor on data pin: {}.", pin);
@@ -72,8 +76,8 @@ public class Am2302Sensor implements Sensor {
 
     log.debug("Performed measurement with values: {}, {}.", toDouble(temperature), toDouble(humidity));
     return new TransferSample(platformIdentifier, IDENTIFIER)
-        .addItem("temperature", toOneDigitDouble(toDouble(temperature)))
-        .addItem("humidity", toOneDigitDouble(toDouble(humidity)));
+        .addItem("temperature", toOneDigitDouble(applyTemperatureCorrection(toDouble(temperature))))
+        .addItem("humidity", toOneDigitDouble(applyHumidityCorrection(toDouble(humidity))));
   }
 
   /**
@@ -103,6 +107,14 @@ public class Am2302Sensor implements Sensor {
 
   private double toDouble(Pointer pointer) {
     return pointer.getFloat(0);
+  }
+
+  private double applyTemperatureCorrection(double temperature) {
+    return temperature + temperatureCorrection;
+  }
+
+  private double applyHumidityCorrection(double humidity) {
+    return humidity + humidityCorrection;
   }
 
   private double toOneDigitDouble(Double value) {

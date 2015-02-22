@@ -17,15 +17,22 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class TemperatureHumiditySensorFactory implements SensorFactory {
 
+  /** Indicates the GPIO pin the sensor is attached. */
   private static final String GPIO_DATA_PIN = "sensorsamplor.sensor.temperature.gpio_data_pin";
+
+  /** Offers the possibility to introduce correction values for inaccurate sensors. */
+  private static final String TEMPERATURE_CORRECTION = "sensorsamplor.sensor.temperature.correctionValue.temperature";
+  private static final String HUMIDITY_CORRECTION = "sensorsamplor.sensor.temperature.correctionValue.humidity";
 
   private final Logger log = LoggerFactory.getLogger(TemperatureHumiditySensorFactory.class);
 
   private int gpioPin;
+  private double temperatureCorrection;
+  private double humidityCorrection;
 
   public Sensor createSensorFor(String platformIdentifier) {
     try {
-      return new Am2302Sensor(platformIdentifier, gpioPin);
+      return new Am2302Sensor(platformIdentifier, gpioPin, temperatureCorrection, humidityCorrection);
     } catch (Throwable t) {
       log.error("Was not able to instantiate AM 3202 Sensor class: {}.", t.getMessage());
     }
@@ -39,13 +46,23 @@ public class TemperatureHumiditySensorFactory implements SensorFactory {
 
   @Override
   public Collection<String> getConfigurationKeys() {
-    return newArrayList(GPIO_DATA_PIN);
+    return newArrayList(
+        GPIO_DATA_PIN,
+        TEMPERATURE_CORRECTION,
+        HUMIDITY_CORRECTION
+    );
   }
 
   @Override
   public void setConfigurationValues(Map<String, String> configuration) {
     if (configuration.containsKey(GPIO_DATA_PIN)) {
       gpioPin = Integer.valueOf(configuration.get(GPIO_DATA_PIN));
+    }
+    if (configuration.containsKey(TEMPERATURE_CORRECTION)) {
+      temperatureCorrection = Double.valueOf(configuration.get(TEMPERATURE_CORRECTION));
+    }
+    if (configuration.containsKey(HUMIDITY_CORRECTION)) {
+      humidityCorrection = Double.valueOf(configuration.get(HUMIDITY_CORRECTION));
     }
   }
 }
