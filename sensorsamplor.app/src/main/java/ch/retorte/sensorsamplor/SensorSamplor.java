@@ -9,6 +9,7 @@ import ch.retorte.sensorsamplor.receiver.SampleReceiverManager;
 import ch.retorte.sensorsamplor.receiver.console.ConsolePrintSampleReceiverFactory;
 import ch.retorte.sensorsamplor.receiver.exporter.JsonExporterSampleReceiverFactory;
 import ch.retorte.sensorsamplor.receiver.file.FileSampleReceiverFactory;
+import ch.retorte.sensorsamplor.receiver.graphite.GraphiteSampleReceiverFactory;
 import ch.retorte.sensorsamplor.sensor.Sensor;
 import ch.retorte.sensorsamplor.sensor.SensorFactory;
 import ch.retorte.sensorsamplor.sensor.systemstats.SystemStatsSensorFactory;
@@ -121,6 +122,7 @@ public class SensorSamplor {
     receiverFactories.add(new ConsolePrintSampleReceiverFactory());
     receiverFactories.add(new FileSampleReceiverFactory());
     receiverFactories.add(new JsonExporterSampleReceiverFactory());
+    receiverFactories.add(new GraphiteSampleReceiverFactory());
 
     configure(receiverFactories);
     log.info("Discovered receivers: {}", receiverFactories);

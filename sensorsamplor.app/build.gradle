@@ -18,6 +18,7 @@ dependencies {
   compile project(':sensorsamplor.sensor.temperature')
   compile project(':sensorsamplor.sensor.systemstats')
   compile project(':sensorsamplor.receiver.jsonexporter')
+  compile project(':sensorsamplor.receiver.graphite')
 }
 
 tasks.startScripts {
