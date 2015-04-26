@@ -2,6 +2,8 @@
 
 _A generic data sampling software for data logging and sensor networks._
 
+[![Build Status](https://travis-ci.org/nwaldispuehl/sensor-samplor.svg?branch=master)](https://travis-ci.org/nwaldispuehl/sensor-samplor)
+
 ![Raspberry Pi with AM2302 sensor](https://github.com/nwaldispuehl/sensor-samplor/wiki/img/raspberry_pi_with_am2302_sensor.jpg)
 
 ##### Table of Contents
