@@ -4,7 +4,7 @@ group = 'ch.retorte.sensorsamplor'
 version = '0.0.1'
 
 dependencies {
-  compile 'com.hazelcast:hazelcast:3.4'
-  compile 'com.googlecode.json-simple:json-simple:1.1'
+  compile 'com.hazelcast:hazelcast:3.4.2'
+  compile 'com.googlecode.json-simple:json-simple:1.1.1'
   compile 'org.quartz-scheduler:quartz:2.2.1'
 }
