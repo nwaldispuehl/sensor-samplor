@@ -44,7 +44,7 @@ public class GraphiteSampleReceiverFactory implements ReceiverFactory {
     if (configuration.containsKey(GRAPHITE_CARBON_SERVER_URL)) {
       carbonServerUrl = configuration.get(GRAPHITE_CARBON_SERVER_URL);
     }
-    if (configuration.containsKey(GRAPHITE_CARBON_SERVER_PORT)) {
+    if (configuration.containsKey(GRAPHITE_CARBON_SERVER_PORT) && !configuration.get(GRAPHITE_CARBON_SERVER_PORT).isEmpty()) {
       carbonServerPort = Integer.valueOf(configuration.get(GRAPHITE_CARBON_SERVER_PORT));
     }
     if (configuration.containsKey(GRAPHITE_CARBON_SERVER_USERNAME)) {
