@@ -18,23 +18,22 @@ public class HazelcastSensorBus implements SensorBus {
   private final Logger log = LoggerFactory.getLogger(HazelcastSensorBus.class);
 
   private HazelcastInstance hazelcastInstance;
-  private RingBuffer<Sample> sampleBuffer;
+  DistributedMap distributedMap;
 
-  public HazelcastSensorBus(String nodeName, String busName, String username, String password, int bufferSize, List<String> networkInterfaces, List<String> remoteMembers) {
-    initializeWith(nodeName, busName, username, password, bufferSize, networkInterfaces, remoteMembers);
+  public HazelcastSensorBus(String nodeName, String busName, String username, String password, List<String> networkInterfaces, List<String> remoteMembers) {
+    initializeWith(nodeName, busName, username, password, networkInterfaces, remoteMembers);
   }
 
-  public void initializeWith(String nodeName, String busName, String username, String password, int bufferSize, List<String> networkInterfaces, List<String> remoteMembers) {
+  public void initializeWith(String nodeName, String busName, String username, String password, List<String> networkInterfaces, List<String> remoteMembers) {
     Config config = createConfigWith(nodeName, username, password, networkInterfaces, remoteMembers);
     hazelcastInstance = newHazelcastInstance(config);
     configureMembershipListenerFor(hazelcastInstance);
 
-    IList<Sample> list = hazelcastInstance.getList(busName);
-    ILock lock = hazelcastInstance.getLock(busName);
+    IMap<String, Sample> map = hazelcastInstance.getMap(busName);
 
-    createBufferWith(list, lock, bufferSize);
+    createMapWith(map);
 
-    log.debug("Created HazelcastSensorBus with ID: {}, bus name: {}, user name: {}, password: {}, buffer size: {}, interfaces: {}, and remote members: {}.", nodeName, busName, username, password, bufferSize, networkInterfaces, remoteMembers);
+    log.debug("Created HazelcastSensorBus with ID: {}, bus name: {}, user name: {}, password: {}, interfaces: {}, and remote members: {}.", nodeName, busName, username, password, networkInterfaces, remoteMembers);
     log.info("Total number of cluster members: {}.", hazelcastInstance.getCluster().getMembers().size());
   }
 
@@ -79,8 +78,8 @@ public class HazelcastSensorBus implements SensorBus {
     }
   }
 
-  private void createBufferWith(IList<Sample> list, ILock lock, int bufferSize) {
-    sampleBuffer = new RingBuffer<>(list, lock, bufferSize);
+  private void createMapWith(IMap<String, Sample> map) {
+    distributedMap = new DistributedMap(map);
   }
 
   @Override
@@ -100,7 +99,7 @@ public class HazelcastSensorBus implements SensorBus {
     @Override
     public void run() {
       try {
-        sampleBuffer.put(sample);
+        distributedMap.put(sample);
         log.debug("Submitted sample: {}.", sample.getId());
       }
       catch (RuntimeException e) {
@@ -111,11 +110,11 @@ public class HazelcastSensorBus implements SensorBus {
 
   @Override
   public void registerSampleListener(final SampleListener sampleListener) {
-    sampleBuffer.addItemListener(new ItemListenerAdapter() {
+    distributedMap.addEntryListener(new EntryListenerAdapter() {
 
       @Override
       void sampleAdded(Sample sample) {
-        sampleListener.onSampleAdded(getBuffer(), sample);
+        sampleListener.onSampleAdded(sample);
       }
     });
     log.debug("Registered new sample listener: {}.", sampleListener.getClass().getSimpleName());
@@ -123,7 +122,7 @@ public class HazelcastSensorBus implements SensorBus {
 
   @Override
   public List<Sample> getBuffer() {
-    return sampleBuffer.getBuffer();
+    return distributedMap.getCurrentEntries();
   }
 
   @Override
@@ -133,23 +132,40 @@ public class HazelcastSensorBus implements SensorBus {
     log.info("Stopped sensor bus.");
   }
 
-  private abstract class ItemListenerAdapter implements ItemListener<Sample> {
+  private abstract class EntryListenerAdapter implements EntryListener<String, Sample> {
 
     abstract void sampleAdded(Sample sample);
 
     @Override
-    public void itemAdded(ItemEvent itemEvent) {
-      Object receivedItem = itemEvent.getItem();
-      if (receivedItem instanceof Sample) {
-        log.debug("Item added event: {}.", receivedItem);
-        sampleAdded((Sample) receivedItem);
-      }
+    public void entryAdded(EntryEvent<String, Sample> event) {
+      Sample sample = event.getValue();
+      log.debug("Entry added event: {}.", sample);
+      sampleAdded(sample);
     }
 
     @Override
-    public void itemRemoved(ItemEvent itemEvent) {
-      // Currently we don't react here.
-      log.debug("Item removed event: {}.", itemEvent.getItem());
+    public void entryUpdated(EntryEvent<String, Sample> event) {
+      entryAdded(event);
+    }
+
+    @Override
+    public void entryRemoved(EntryEvent<String, Sample> event) {
+      log.debug("Entry removed event: {}.", event.getValue());
+    }
+
+    @Override
+    public void entryEvicted(EntryEvent<String, Sample> event) {
+      // nop
+    }
+
+    @Override
+    public void mapCleared(MapEvent event) {
+      // nop
+    }
+
+    @Override
+    public void mapEvicted(MapEvent event) {
+      // nop
     }
   }
 

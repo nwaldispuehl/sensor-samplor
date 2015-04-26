@@ -37,7 +37,7 @@ public class SampleReceiverManager {
     sensorBus.registerSampleListener(new SampleListener() {
 
       @Override
-      public void onSampleAdded(List<Sample> sampleBuffer, Sample sample) {
+      public void onSampleAdded(Sample sample) {
         processSample(sample);
       }
     });

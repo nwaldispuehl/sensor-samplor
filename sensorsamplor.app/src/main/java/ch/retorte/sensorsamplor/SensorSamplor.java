@@ -71,7 +71,7 @@ public class SensorSamplor {
 
   private void createSensorBus() {
     log.info("Creating sensor bus.");
-    sensorBus = new HazelcastSensorBus(getSensorPlatformIdentifier(), getBusName(), getUsername(), getPassword(), getBufferSize(), getNetworkInterfaces(), getRemoteMembers());
+    sensorBus = new HazelcastSensorBus(getSensorPlatformIdentifier(), getBusName(), getUsername(), getPassword(), getNetworkInterfaces(), getRemoteMembers());
   }
 
   private void loadSensors() {
@@ -226,7 +226,4 @@ public class SensorSamplor {
     return configurationLoader.getStringProperty(RECEIVER_PLATFORM_IDENTIFIER_PATTERN);
   }
 
-  private int getBufferSize() {
-    return configurationLoader.getIntegerProperty(BUFFER_SIZE);
-  }
 }

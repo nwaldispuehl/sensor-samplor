@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
 group = 'ch.retorte.sensorsamplor'
-version = '0.0.1'
+version = '0.0.2'
 
 dependencies {
   compile 'com.hazelcast:hazelcast:3.4.2'
