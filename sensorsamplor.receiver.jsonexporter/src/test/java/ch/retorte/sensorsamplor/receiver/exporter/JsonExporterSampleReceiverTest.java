@@ -11,7 +11,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class JsonExporterSampleReceiverTest {
 
-  JsonExporterSampleReceiver sut = new JsonExporterSampleReceiver("", 1);
+  JsonExporterSampleReceiver sut = new JsonExporterSampleReceiver("", 1, "", "");
 
 
   @Test
