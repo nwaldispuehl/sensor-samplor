@@ -4,16 +4,16 @@ import ch.retorte.sensorsamplor.receiver.SampleReceiver;
 import ch.retorte.sensorsamplor.sensor.ErrorSample;
 import ch.retorte.sensorsamplor.sensor.Sample;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.io.CharStreams;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -57,25 +57,26 @@ public class GraphiteSampleReceiver implements SampleReceiver {
   }
 
   private void sendToCarbon(Sample sample) {
-    sendToCarbon(graphiteFormatOf(sample));
+    sendToCarbon(jsonFormatOf(sample));
   }
 
-  private void sendToCarbon(List<String> payloadLines) {
-    log.debug("Sending message to carbon [{}:{}]: {}.", carbonServerUrl, carbonServerPort, payloadLines);
+  private void sendToCarbon(String jsonObject) {
+    log.debug("Sending message to carbon [{}:{}]: {}.", carbonServerUrl, carbonServerPort, jsonObject);
 
     Socket socket = null;
     OutputStream outputStream = null;
     PrintWriter printWriter = null;
+    InputStream response = null;
+    InputStreamReader reader = null;
     try {
       socket = new Socket(carbonServerUrl, carbonServerPort);
       outputStream = socket.getOutputStream();
       printWriter = new PrintWriter(outputStream, true);
+      printWriter.println(jsonObject);
 
-      for (String line : payloadLines) {
-        printWriter.println(line);
-      }
-
-      log.debug("Message successfully sent.");
+      response = socket.getInputStream();
+      reader = new InputStreamReader(response);
+      log.debug("Message successfully sent. Answer: {}.", CharStreams.toString(reader));
     }
     catch (UnknownHostException e) {
       log.error("Host {}:{} not known: {}", carbonServerUrl, carbonServerPort, e.getMessage());
@@ -84,6 +85,8 @@ public class GraphiteSampleReceiver implements SampleReceiver {
       log.error("Problems when connecting to host {}:{}: {}", carbonServerUrl, carbonServerPort, e.getMessage());
     }
     finally {
+      gracefullyClose(reader);
+      gracefullyClose(response);
       gracefullyClose(printWriter);
       gracefullyClose(outputStream);
       gracefullyClose(socket);
@@ -101,13 +104,19 @@ public class GraphiteSampleReceiver implements SampleReceiver {
     }
   }
 
-  private List<String> graphiteFormatOf(Sample sample) {
-    List<String> result = newArrayList();
-    for (String key : sample.getData().keySet()) {
-      result.add(graphiteFormatOf(sample, key));
+  private String jsonFormatOf(Sample sample) {
+    JSONObject result = new JSONObject();
+    result.put("message", sample.toString());
+    result.put("@timestamp", sample.getTimestamp().getMillis());
+    result.put("host", sample.getPlatformIdentifier());
+    result.put("project", "SensorSamplor");
+    result.put("sensorType", sample.getSensorType());
+
+    for (Map.Entry<String, Serializable> entry : sample.getData().entrySet()) {
+      result.put(entry.getKey(), entry.getValue());
     }
 
-    return result;
+    return result.toJSONString();
   }
 
   @VisibleForTesting

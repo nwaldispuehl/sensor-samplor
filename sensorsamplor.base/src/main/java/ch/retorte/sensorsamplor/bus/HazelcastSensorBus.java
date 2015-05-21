@@ -53,9 +53,16 @@ public class HazelcastSensorBus implements SensorBus {
   }
 
   private void setNetworkConfigWith(NetworkConfig networkConfig, List<String> networkInterfaces, List<String> remoteMembers) {
-    networkConfig.getJoin().getMulticastConfig().setEnabled(true);
+    log.debug("Starting network config with interfaces {} and remote members {}.", networkInterfaces, remoteMembers);
     setNetworkInterfacesConfigWith(networkConfig.getInterfaces(), networkInterfaces);
-    setTcpIpConfigWith(networkConfig.getJoin().getTcpIpConfig(), remoteMembers);
+
+    if (remoteMembers.isEmpty()) {
+      networkConfig.getJoin().getMulticastConfig().setEnabled(true);
+    }
+    else {
+      networkConfig.getJoin().getMulticastConfig().setEnabled(false);
+      setTcpIpConfigWith(networkConfig.getJoin().getTcpIpConfig(), remoteMembers);
+    }
   }
 
   private void setNetworkInterfacesConfigWith(InterfacesConfig interfacesConfig, List<String> networkInterfaces) {
