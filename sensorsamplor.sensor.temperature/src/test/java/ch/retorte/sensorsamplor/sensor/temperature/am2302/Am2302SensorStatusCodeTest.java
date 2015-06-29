@@ -1,4 +1,4 @@
-package ch.retorte.sensorsamplor.sensor.temperature.adm2302;
+package ch.retorte.sensorsamplor.sensor.temperature.am2302;
 
 import org.junit.Test;
 

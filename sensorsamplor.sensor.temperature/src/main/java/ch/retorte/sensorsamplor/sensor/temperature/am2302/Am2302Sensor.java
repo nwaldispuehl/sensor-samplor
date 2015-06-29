@@ -4,6 +4,7 @@ import ch.retorte.sensorsamplor.sensor.Sample;
 import ch.retorte.sensorsamplor.sensor.Sensor;
 import ch.retorte.sensorsamplor.sensor.SensorException;
 import ch.retorte.sensorsamplor.sensor.TransferSample;
+import com.google.common.annotations.VisibleForTesting;
 import com.sun.jna.Library;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
@@ -28,6 +29,8 @@ public class Am2302Sensor implements Sensor {
   private static final int FLOAT_SIZE = 16;
   private static final int RETRIES_IN_ERROR_CASE = 4;
   private static final int WAITING_TIME_MS_BEFORE_RETRY = 250;
+  private static final double ALLOWED_TEMPERATURE_VARIATION = 5;
+  private static final double ALLOWED_HUMIDITY_VARIATION = 10;
 
   private final Logger log = LoggerFactory.getLogger(Am2302Sensor.class);
 
@@ -36,19 +39,24 @@ public class Am2302Sensor implements Sensor {
   private final double temperatureCorrection;
   private final double humidityCorrection;
 
-  private final Pointer humidity = new Memory(FLOAT_SIZE);
   private final Pointer temperature = new Memory(FLOAT_SIZE);
+  private final Pointer humidity = new Memory(FLOAT_SIZE);
+
+  private Double temperatureCache;
+  private Double humidityCache;
 
   private int returnCode;
   private int triesSoFar;
 
   private final Am2302SensorLibrary sensorLibrary;
 
+
+
   /**
    * The interface for the native piDht library we're using for communication with the sensor.
    */
   private interface Am2302SensorLibrary extends Library {
-    public int pi_dht_read(int sensor, int pin, Pointer humidity, Pointer temperature);
+    int pi_dht_read(int sensor, int pin, Pointer humidity, Pointer temperature);
   }
 
   private Am2302SensorLibrary loadLibrary() {
@@ -69,10 +77,12 @@ public class Am2302Sensor implements Sensor {
   public Sample measure() throws SensorException {
     measureWithRetries();
 
-    if (measurementFailed()) {
+    if (measurementNotSuccessful()) {
       log.warn("Temperature measurement failed. Reason according to sensor: {}.", messageOfStatus(returnCode));
       throw new SensorException(platformIdentifier, IDENTIFIER, messageOfStatus(returnCode));
     }
+
+    cacheMeasurements();
 
     log.debug("Performed measurement with values: {}, {}.", toDouble(temperature), toDouble(humidity));
     return new TransferSample(platformIdentifier, IDENTIFIER)
@@ -87,11 +97,11 @@ public class Am2302Sensor implements Sensor {
     returnCode = -1;
     triesSoFar = 0;
 
-    while (measurementFailed() && hasTriesLeft()) {
+    while ((measurementNotSuccessful() || tooFarOff()) && hasTriesLeft()) {
       triesSoFar++;
       returnCode = sensorLibrary.pi_dht_read(SENSOR_TYPE, pin, humidity, temperature);
 
-      if (measurementFailed()) {
+      if (measurementNotSuccessful()) {
         sleepFor(WAITING_TIME_MS_BEFORE_RETRY);
       }
     }
@@ -101,8 +111,34 @@ public class Am2302Sensor implements Sensor {
     return triesSoFar <= RETRIES_IN_ERROR_CASE;
   }
 
-  private boolean measurementFailed() {
+  private boolean measurementNotSuccessful() {
     return returnCode != DHT_SUCCESS.code();
+  }
+
+  private boolean tooFarOff() {
+    return isCacheSet() && (temperatureTooFarOff() || humidityTooFarOff());
+  }
+
+  private boolean isCacheSet() {
+    return temperatureCache != null;
+  }
+
+  private boolean temperatureTooFarOff() {
+    return ALLOWED_TEMPERATURE_VARIATION < distanceOf(temperatureCache, toDouble(temperature));
+  }
+
+  private boolean humidityTooFarOff() {
+    return ALLOWED_HUMIDITY_VARIATION < distanceOf(humidityCache, toDouble(humidity));
+  }
+
+  @VisibleForTesting
+  double distanceOf(double d1, double d2) {
+    return Math.abs(d1 - d2);
+  }
+
+  private void cacheMeasurements() {
+    temperatureCache = toDouble(temperature);
+    humidityCache = toDouble(humidity);
   }
 
   private double toDouble(Pointer pointer) {
