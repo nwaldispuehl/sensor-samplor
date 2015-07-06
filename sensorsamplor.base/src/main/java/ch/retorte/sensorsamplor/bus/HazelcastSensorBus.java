@@ -110,7 +110,7 @@ public class HazelcastSensorBus implements SensorBus {
         log.debug("Submitted sample: {}.", sample.getId());
       }
       catch (RuntimeException e) {
-        log.error("Failed to add sample to sampleBuffer due to: {}.", e);
+        log.error("Failed to add sample to sampleBuffer due to: {}.", e.getMessage());
       }
     }
   }
