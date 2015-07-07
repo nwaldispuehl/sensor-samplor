@@ -23,7 +23,7 @@ import java.net.URL;
  */
 public class HttpXmlSensor implements Sensor {
 
-  public static final String IDENTIFIER = "httpXml";
+  public static final String IDENTIFIER = "httpxml";
 
   private final String platformIdentifier;
   private HttpXmlSensorSource source;
