@@ -5,5 +5,6 @@ include "sensorsamplor.base",
         "sensorsamplor.receiver.file",
         "sensorsamplor.receiver.jsonexporter",
         "sensorsamplor.sensor.systemstats",
-        "sensorsamplor.receiver.graphite"
+        "sensorsamplor.receiver.graphite",
+        "sensorsamplor.sensor.httpxml"
 

@@ -1,0 +1,21 @@
+<!--Source: openweathermap.org-->
+<current>
+    <city id="2657896" name="Zurich">
+        <coord lon="8.55" lat="47.37"></coord>
+        <country>CH</country>
+        <sun rise="2015-07-07T03:37:36" set="2015-07-07T19:23:35"></sun>
+    </city>
+    <temperature value="28.91" min="25.56" max="31" unit="metric"></temperature>
+    <humidity value="43" unit="%"></humidity>
+    <pressure value="1011" unit="hPa"></pressure>
+    <wind>
+        <speed value="5.7" name="Moderate breeze"></speed>
+        <gusts></gusts>
+        <direction value="270" code="W" name="West"></direction>
+    </wind>
+    <clouds value="20" name="few clouds"></clouds>
+    <visibility></visibility>
+    <precipitation mode="no"></precipitation>
+    <weather number="801" value="few clouds" icon="02n"></weather>
+    <lastupdate value="2015-07-07T19:53:11"></lastupdate>
+</current>

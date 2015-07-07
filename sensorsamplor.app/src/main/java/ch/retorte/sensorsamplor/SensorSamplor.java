@@ -15,6 +15,7 @@ import ch.retorte.sensorsamplor.sensor.SensorFactory;
 import ch.retorte.sensorsamplor.sensor.systemstats.SystemStatsSensorFactory;
 import ch.retorte.sensorsamplor.sensor.temperature.TemperatureHumiditySensorFactory;
 import ch.retorte.sensorsamplor.configuration.ConfigurationLoader;
+import ch.retorte.sensorsamplor.sensor.httpxml.HttpXmlSensorFactory;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,6 +91,7 @@ public class SensorSamplor {
     List<SensorFactory> sensorFactories = newArrayList();
     sensorFactories.add(new TemperatureHumiditySensorFactory());
     sensorFactories.add(new SystemStatsSensorFactory());
+    sensorFactories.add(new HttpXmlSensorFactory());
 
     configure(sensorFactories);
     log.info("Discovered sensors: {}", sensorFactories);
