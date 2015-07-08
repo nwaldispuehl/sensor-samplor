@@ -17,11 +17,13 @@ import static org.mockito.Mockito.spy;
 public class HttpXmlSensorIntegrationTest {
 
   HttpXmlSensor sut = spy(new HttpXmlSensor("test"));
-  URL sampleUrl;
+  URL sample1Url;
+  URL sample2Url;
 
   @Before
   public void setup() {
-    sampleUrl = getClass().getClassLoader().getResource("sample.xml");
+    sample1Url = getClass().getClassLoader().getResource("sample.xml");
+    sample2Url = getClass().getClassLoader().getResource("sample2.xml");
   }
 
   private HttpXmlSensorSource sourceWith(String name, URL url, String xpath) {
@@ -29,15 +31,28 @@ public class HttpXmlSensorIntegrationTest {
   }
 
   @Test
-  public void shouldFetchXmlData() throws SensorException {
+  public void shouldFetchXmlDataFromSample1() throws SensorException {
     // given
-    HttpXmlSensorSource source = sourceWith("name", sampleUrl, "current/temperature/@value");
+    HttpXmlSensorSource source = sourceWith("name", sample1Url, "current/temperature/@value");
 
     // when
     Sample sample = sut.measureWith(source);
 
     // then
     assertThat(sample.getPlatformIdentifier(), is("test"));
-    assertThat(sample.getData().get("current/temperature/@value"), is("28.91"));
+    assertThat((String) sample.getData().get("current/temperature/@value"), is("28.91"));
+  }
+
+  @Test
+  public void shouldFetchXmlDataFromSample2() throws SensorException {
+    // given
+    HttpXmlSensorSource source = sourceWith("name", sample2Url, "current_observation/temp_c/text()");
+
+    // when
+    Sample sample = sut.measureWith(source);
+
+    // then
+    assertThat(sample.getPlatformIdentifier(), is("test"));
+    assertThat((String) sample.getData().get("current_observation/temp_c/text()"), is("23.4"));
   }
 }
