@@ -70,8 +70,11 @@ public class HttpXmlSensor implements Sensor {
     }
   }
 
+  /**
+   * Removes unwanted characters as for example brackets.
+   */
   private String getIdentifierFrom(String path) {
-    return path;
+    return path.replace("(", "").replace(")","");
   }
 
   private String getNodeContentWith(Document d, String xPathExpression) throws XPathExpressionException {

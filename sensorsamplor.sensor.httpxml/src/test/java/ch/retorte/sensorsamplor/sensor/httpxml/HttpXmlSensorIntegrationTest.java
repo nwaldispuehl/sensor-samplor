@@ -53,6 +53,6 @@ public class HttpXmlSensorIntegrationTest {
 
     // then
     assertThat(sample.getPlatformIdentifier(), is("test"));
-    assertThat((String) sample.getData().get("current_observation/temp_c/text()"), is("23.4"));
+    assertThat((String) sample.getData().get("current_observation/temp_c/text"), is("23.4"));
   }
 }
