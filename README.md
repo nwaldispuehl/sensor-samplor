@@ -15,6 +15,7 @@ _A generic data sampling software for data logging and sensor networks._
 
 
 <a name='introduction' />
+
 ## Introduction
 
 This software provides a distributed communication bus based on [Hazelcast](http://hazelcast.org/) (a distributed data grid) with attached *Sensors* sending samples into the bus and *Receivers* reacting on such sensor events.
@@ -24,6 +25,7 @@ Usually in a sensor network, there are sensing nodes which only perform sensor m
 The default use case is to measure temperature with a DHT22/AM2302 temperature/humidity sensor on a [Raspberry Pi](http://www.raspberrypi.org/). The software can be run on a wide variety of platforms using any thinkable sensor however. The platform needs to support [Java 7](https://www.java.com/).
 
 <a name='manuals' />
+
 ## Manuals
 
 More information on how to install and use the software can be found in the [wiki](https://github.com/nwaldispuehl/sensor-samplor/wiki):
@@ -33,11 +35,13 @@ More information on how to install and use the software can be found in the [wik
 
 
 <a name='basic_use_cases' />
+
 ## Basic use cases
 
 The following use cases demonstrate frequent usage patterns of the software.
 
 <a name='data_logger_usecase' />
+
 ### Use case 1: A temperature data logger
 
 The software can certainly be used stand-alone when we only want to log sensor data for later use. After having installed the software and the driver on a Raspberry Pi with attached sensor (see below for instructions) we want it to measure temperature (and humidity) on a regular basis and store the samples in a log file. After some weeks we will collect the Pi and analyze the logs on some other system.
@@ -100,6 +104,7 @@ and the contents of an actual log file thus is like this:
 These can now be processed.
 
 <a name='sensor_network_usecase' />
+
 ### Use case 2: A small sensor network
 
 To have multiple nodes collecting sensor readings (also temperature in this case) we configure two Raspberry Pi computers as sensor nodes and a personal computer as some sort of sensor live ticker. We again assume the software has been installed on all three systems and temperature sensors as well as drivers were set up on the two Raspberry Pi computers. Furthermore all nodes are connected to the same computer network.
